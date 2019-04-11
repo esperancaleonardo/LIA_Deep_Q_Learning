@@ -28,6 +28,7 @@ from Vision import Vision
 from Controller import Controller
 
 from collections import deque
+from datetime import datetime
 
 ##
 
@@ -37,8 +38,8 @@ class Agent(object):
         self.number_of_actions = number_of_actions
         self.input_dimension = input_dimension
         self.instant_reward = 0.0
-        self.cummulative_reward = 0.0
-        self.memory = deque(maxlen=10000)
+        self.cummulative_reward = -359810.724151
+        self.memory = deque(maxlen=30000)
         self.batch_size = int (batch_size)
         self.classes = self.number_of_actions
         self.controller = Controller("UR3", 6)
@@ -46,9 +47,11 @@ class Agent(object):
         self.vision = Vision('Vision_frontal','Vision_lateral','Vision_top',self.controller.id_number)
         self.model = self.create_model(input_dimension, number_of_actions, 'mean_squared_error', Adam(lr=alpha),  ['accuracy'])
         if load == 1:
-            print "loading model weights..."
+            now = datetime.now()
+            print str(now) + " loading model weights..."
             self.model.load_weights('model_weights.h5')
-            print "model weights load done!"
+            now = datetime.now()
+            print str(now) + " model weights load done!"
 
         self.handlers = self.manage_handlers()
         self.counter = 0
@@ -188,12 +191,14 @@ class Agent(object):
             else:
                 done = 1
         else:
-            print "something lost"
+            now = datetime.now()
+            print str(now) + " something lost"
             reward = -1000
             done = 1
 
         if done:
-            print "print"
+            now = datetime.now()
+            print str(now) + " print"
             cv.imwrite(filename=os.path.join(path+"/log/lost/top_"+str(self.counter)+".png"), img= colored)
             cv.imwrite(filename=os.path.join(path+"/log/lost/side_"+str(self.counter)+".png"), img= aux_colored)
             self.counter += 1

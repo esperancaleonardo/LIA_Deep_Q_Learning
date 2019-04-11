@@ -5,6 +5,7 @@ import cv2 as cv
 import time
 import sys
 import numpy as np
+from datetime import datetime
 
 class Learning(object):
     """ docstring for Learning """
@@ -48,7 +49,8 @@ class Learning(object):
         run_init = time.time()
 
         for episode in range(self.episodes):
-            print "starting ep " + str(episode+1)
+            now = datetime.now()
+            print str(now) + " starting ep " + str(episode+1)
 
             init = time.time()
             self.agent.instant_reward = 0.0
@@ -65,29 +67,36 @@ class Learning(object):
                 self.write_memory(self.agent.memory, state, action_taken, reward, next_state, done)
                 state = next_state
                 if done:
-                    print "DONE"
+                    now = datetime.now()
+                    print str(now) + " DONE"
                     break
 
-                if step > 0 and step%30==0:
-                    print "."
+                if step > 0 and step%100==0:
+                    now = datetime.now()
+                    print str(now) + " step ", step
 
             end = time.time()
 
+            ## TODO: inserir verificacao de quantidade de passos dados
             if len(self.agent.memory) > self.agent.batch_size:
-                print "REPLAY"
+                now = datetime.now()
+                print str(now) + " REPLAY"
                 rep_init = time.time()
                 self.replay(state[1])
                 rep_end = time.time()
-                print "replay ", str((rep_end - rep_init)/60.0), "minutes"
+                now = datetime.now()
+                print str(now) + " replay ", str((rep_end - rep_init)/60.0), "minutes"
 
             self.agent.cummulative_reward = self.agent.cummulative_reward + self.agent.instant_reward
 
-            if  episode > 0 and episode%20 == 0:
+            if  episode > 0 and episode%80 == 0:
                 self.epsilon = self.epsilon * self.epsilon_decay
-                print "epsilon decay"
+                now = datetime.now()
+                print str(now) + " epsilon decay"
 
-            if episode > 0 and episode%5 == 0:
-                print "weights backup..."
+            if episode > 0 and episode%10 == 0:
+                now = datetime.now()
+                print str(now) + " weights backup..."
                 self.agent.model.save_weights('model_weights.h5')
 
 
@@ -96,14 +105,20 @@ class Learning(object):
             self.agent.controller.start_sim()
             sleep(2)
 
-            print "duration (m) " + str((end - init)/60.0) + " ep " + str(episode+1) + " epsilon " + str(self.epsilon) + " ep reward " + str(self.agent.instant_reward) + " total reward " + str(self.agent.cummulative_reward)
+            now = datetime.now()
+            print str(now) + " duration (m) " + str((end - init)/60.0) + " ep " + str(episode+1) + " epsilon " + str(self.epsilon) + " ep reward " + str(self.agent.instant_reward) + " total reward " + str(self.agent.cummulative_reward)
+            run_stop = time.time()
+            now = datetime.now()
+            print str(now) + " running for... " + str((run_stop - run_init)/60.0) + " minutes."
+
 
         self.agent.controller.stop_sim()
         self.agent.controller.close_connection()
 
         run_stop = time.time()
+        now = datetime.now()
+        print str(now) + " running for... " + str((run_stop - run_init)/60.0) + " minutes."
 
-        print "running for... " + str((run_stop - run_init)/60.0) + " minutes."
-
-        print "saving model..."
+        now = datetime.now()
+        print str(now) + " saving model..."
         self.agent.model.save_weights('model_weights.h5')

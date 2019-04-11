@@ -10,23 +10,24 @@ import tensorflow as tf
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 tf.logging.set_verbosity(tf.logging.ERROR)
 
-# testar
-#
-#
-#
-#
+#   ########## testar
+#   max_steps 1,000
+#   gamma (discount rate) 0.99
+#   batch_size 20,000
+#   memory size 500,000
+#   alpha (learning rate) 0.000006
 #
 #
 
 def main():
     number_of_actions = 14
     input_dimension = 256
-    batch_size=500
+    batch_size=2000
     episodes= int(sys.argv[2])
-    max_steps=300
-    epsilon=8
-    gamma=0.1
-    alpha=0.001
+    max_steps=350
+    epsilon=7.716375
+    gamma=0.99
+    alpha=0.000006
     epsilon_decay=0.95
     epochs=1
     load = int(sys.argv[1])

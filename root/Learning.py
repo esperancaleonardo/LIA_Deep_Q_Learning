@@ -89,7 +89,7 @@ class Learning(object):
 
             self.agent.cummulative_reward = self.agent.cummulative_reward + self.agent.instant_reward
 
-            if  episode > 0 and episode%50 == 0:
+            if  episode > 0 and episode%10 == 0:
                 self.epsilon = self.epsilon * self.epsilon_decay
                 now = datetime.now()
                 print str(now) + " epsilon decay"

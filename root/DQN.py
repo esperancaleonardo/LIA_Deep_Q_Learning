@@ -7,6 +7,9 @@ import sys
 import os
 import tensorflow as tf
 
+
+
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 tf.logging.set_verbosity(tf.logging.ERROR)
 
@@ -21,11 +24,11 @@ tf.logging.set_verbosity(tf.logging.ERROR)
 
 def main():
     number_of_actions = 14
-    input_dimension = 256
-    batch_size=2000
+    input_dimension = 128
+    batch_size=50
     episodes= int(sys.argv[2])
-    max_steps=350
-    epsilon=7.716375
+    max_steps=201
+    epsilon=8
     gamma=0.99
     alpha=0.000006
     epsilon_decay=0.95

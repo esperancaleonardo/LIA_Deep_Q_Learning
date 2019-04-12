@@ -62,7 +62,6 @@ class Learning(object):
                 action_taken = self.agent.act(state[1], self.epsilon)
                 next_state, reward, done = self.agent.do_step(action_taken) ##extrair imagem aqui dentro
                 self.agent.instant_reward = self.agent.instant_reward + reward
-                #print "ep " + str(episode+1) + " step " + str(step+1) + " epsilon " + str(self.epsilon) + " rwrd " + str(reward) + " cumm " + str(self.agent.instant_reward) + " total " + str(self.agent.cummulative_reward)
 
                 self.write_memory(self.agent.memory, state, action_taken, reward, next_state, done)
                 state = next_state
@@ -71,13 +70,14 @@ class Learning(object):
                     print str(now) + " DONE"
                     break
 
-                if step > 0 and step%100==0:
+                if step > 0 and step%50==0:
                     now = datetime.now()
                     print str(now) + " step ", step
 
             end = time.time()
+            self.agent.controller.stop_sim()
 
-            ## TODO: inserir verificacao de quantidade de passos dados
+            # TODO: inserir verificacao de quantidade de passos dados
             if len(self.agent.memory) > self.agent.batch_size:
                 now = datetime.now()
                 print str(now) + " REPLAY"
@@ -89,7 +89,7 @@ class Learning(object):
 
             self.agent.cummulative_reward = self.agent.cummulative_reward + self.agent.instant_reward
 
-            if  episode > 0 and episode%80 == 0:
+            if  episode > 0 and episode%100 == 0:
                 self.epsilon = self.epsilon * self.epsilon_decay
                 now = datetime.now()
                 print str(now) + " epsilon decay"
@@ -100,8 +100,6 @@ class Learning(object):
                 self.agent.model.save_weights('model_weights.h5')
 
 
-            self.agent.controller.stop_sim()
-            sleep(2)
             self.agent.controller.start_sim()
             sleep(2)
 

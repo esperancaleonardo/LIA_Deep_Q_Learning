@@ -38,8 +38,8 @@ class Agent(object):
         self.number_of_actions = number_of_actions
         self.input_dimension = input_dimension
         self.instant_reward = 0.0
-        self.cummulative_reward = -359810.724151
-        self.memory = deque(maxlen=30000)
+        self.cummulative_reward = 0.0
+        self.memory = deque(maxlen=500)
         self.batch_size = int (batch_size)
         self.classes = self.number_of_actions
         self.controller = Controller("UR3", 6)
@@ -184,9 +184,9 @@ class Agent(object):
             distance = math.sqrt((_3d_red[0]-_3d_blue[0])**2 + (_3d_red[1]-_3d_blue[1])**2 + (_3d_red[2]-_3d_blue[2])**2)
             #print distance
 
-            reward = 100 - distance
+            reward = 46 - distance
 
-            if distance > 10.0:
+            if distance >= 6.0:
                 done = 0
             else:
                 done = 1

@@ -44,7 +44,7 @@ class Learning(object):
 
     def run(self):
         self.agent.controller.start_sim()
-        sleep(1)
+        sleep(4)
 
         run_init = time.time()
 
@@ -101,7 +101,7 @@ class Learning(object):
 
 
             self.agent.controller.start_sim()
-            sleep(2)
+            sleep(4)
 
             now = datetime.now()
             print str(now) + " duration (m) " + str((end - init)/60.0) + " ep " + str(episode+1) + " epsilon " + str(self.epsilon) + " ep reward " + str(self.agent.instant_reward) + " total reward " + str(self.agent.cummulative_reward)

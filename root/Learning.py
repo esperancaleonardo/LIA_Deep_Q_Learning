@@ -72,7 +72,7 @@ class Learning(object):
 
                 if step > 0 and step%50==0:
                     now = datetime.now()
-                    print str(now) + " step ", step
+                    #print str(now) + " step ", step
 
             end = time.time()
             self.agent.controller.stop_sim()

@@ -28,7 +28,7 @@ def main():
     batch_size=2000
     episodes= int(sys.argv[2])
     max_steps=1000
-    epsilon=8
+    epsilon=4.78989551391
     gamma=0.99
     alpha=0.000006
     epsilon_decay=0.95

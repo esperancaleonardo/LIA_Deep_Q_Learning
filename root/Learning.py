@@ -44,7 +44,7 @@ class Learning(object):
 
     def run(self):
         self.agent.controller.start_sim()
-        sleep(1)
+        sleep(4)
 
         run_init = time.time()
 
@@ -70,12 +70,13 @@ class Learning(object):
                     print str(now) + " DONE"
                     break
 
-                if step > 0 and step%50==0:
-                    now = datetime.now()
-                    print str(now) + " step ", step
+                #if step > 0 and step%50==0:
+                #    now = datetime.now()
+                #    print str(now) + " step ", step
 
             end = time.time()
             self.agent.controller.stop_sim()
+	    sleep(4)
 
             # TODO: inserir verificacao de quantidade de passos dados
             if len(self.agent.memory) > self.agent.batch_size:
@@ -101,7 +102,7 @@ class Learning(object):
 
 
             self.agent.controller.start_sim()
-            sleep(2)
+            sleep(4)
 
             now = datetime.now()
             print str(now) + " duration (m) " + str((end - init)/60.0) + " ep " + str(episode+1) + " epsilon " + str(self.epsilon) + " ep reward " + str(self.agent.instant_reward) + " total reward " + str(self.agent.cummulative_reward)

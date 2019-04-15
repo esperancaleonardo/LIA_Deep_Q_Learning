@@ -86,7 +86,7 @@ class Agent(object):
 
 
         model.compile(loss = loss_type, optimizer = optimizer, metrics = metrics_list)
-        #model.summary()
+        model.summary()
 
         return model
 

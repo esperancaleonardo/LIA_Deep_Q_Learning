@@ -27,8 +27,8 @@ def main():
     input_dimension = 128
     batch_size=80
     episodes= int(sys.argv[2])
-    epsilon=8
     max_steps=301
+    epsilon=8
     gamma=0.99
     alpha=0.000006
     epsilon_decay=0.95

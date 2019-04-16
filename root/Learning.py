@@ -70,12 +70,13 @@ class Learning(object):
                     print str(now) + " DONE"
                     break
 
-                if step > 0 and step%50==0:
-                    now = datetime.now()
-                    #print str(now) + " step ", step
+                #if step > 0 and step%50==0:
+                #    now = datetime.now()
+                #    print str(now) + " step ", step
 
             end = time.time()
             self.agent.controller.stop_sim()
+	    sleep(4)
 
             # TODO: inserir verificacao de quantidade de passos dados
             if len(self.agent.memory) > self.agent.batch_size:

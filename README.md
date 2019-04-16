@@ -13,10 +13,7 @@ Module implementation:
 
 [x] Vision: for vrep image extraction and visual recognition algorithms
 
-[x] State: State description for Q-Learning
+[X] Agent: Agent description for Q-Learning
 
-[] Agent: Agent description for Q-Learning
+[X] Learning: For learning control, that will use all modules
 
-[] Learning: For learning control, that will use all modules
-
-[] Environment: for environment variables control

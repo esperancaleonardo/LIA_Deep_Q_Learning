@@ -1,7 +1,6 @@
 from Agent import Agent
 from Learning import Learning
 import Controller
-import utils
 import Vision
 import sys
 import os
@@ -25,19 +24,18 @@ tf.logging.set_verbosity(tf.logging.ERROR)
 def main():
     number_of_actions = 14
     input_dimension = 128
-    batch_size=80
+    batch_size=200
     episodes= int(sys.argv[2])
-    max_steps=301
+    max_steps=50
     epsilon=8
     gamma=0.99
     alpha=0.000006
     epsilon_decay=0.95
+    episodes_decay=50
     epochs=1
     load = int(sys.argv[1])
 
-    dqn = Learning(number_of_actions, input_dimension, load, batch_size, episodes, max_steps, epsilon, gamma, alpha, epsilon_decay, epochs)
-
-    #print dqn.episodes
+    dqn = Learning(number_of_actions, input_dimension, load, batch_size, episodes, max_steps, epsilon, gamma, alpha, epsilon_decay, episodes_decay, epochs)
 
     dqn.run()
 

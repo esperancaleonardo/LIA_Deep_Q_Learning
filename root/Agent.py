@@ -9,7 +9,6 @@
 
 import cv2 as cv, os
 import numpy as np
-import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 
 import keras
@@ -38,8 +37,8 @@ class Agent(object):
         self.number_of_actions = number_of_actions
         self.input_dimension = input_dimension
         self.instant_reward = 0.0
-        self.cummulative_reward = 1693776.86669
-        self.memory = deque(maxlen=100000)
+        self.cummulative_reward = 0.0
+        self.memory = deque(maxlen=1000)
         self.batch_size = int (batch_size)
         self.classes = self.number_of_actions
         self.controller = Controller("UR3", 6)

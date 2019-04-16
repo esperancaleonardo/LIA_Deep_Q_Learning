@@ -9,13 +9,14 @@ from datetime import datetime
 
 class Learning(object):
     """ docstring for Learning """
-    def __init__(self, number_of_actions, input_dimension, load, batch_size=25, episodes = 10, max_steps = 100, epsilon = 0, gamma = 0.0, alpha = 0.0, epsilon_decay = 1.0, epochs = 1):
+    def __init__(self, number_of_actions, input_dimension, load, batch_size=25, episodes = 10, max_steps = 100, epsilon = 0, gamma = 0.0, alpha = 0.0, epsilon_decay = 1.0, episodes_decay=30, epochs = 1):
         self.episodes = episodes
         self.max_steps = max_steps
         self.epsilon = epsilon
         self.gamma = gamma
         self.alpha = alpha
         self.epsilon_decay = epsilon_decay
+        self.episodes_decay = episodes_decay
         self.epochs = epochs
         self.agent = Agent(number_of_actions, input_dimension, batch_size, self.alpha, load)
 
@@ -44,7 +45,7 @@ class Learning(object):
 
     def run(self):
         self.agent.controller.start_sim()
-        sleep(4)
+        sleep(2)
 
         run_init = time.time()
 
@@ -76,7 +77,7 @@ class Learning(object):
 
             end = time.time()
             self.agent.controller.stop_sim()
-	    sleep(4)
+            sleep(2)
 
             # TODO: inserir verificacao de quantidade de passos dados
             if len(self.agent.memory) > self.agent.batch_size:
@@ -90,7 +91,7 @@ class Learning(object):
 
             self.agent.cummulative_reward = self.agent.cummulative_reward + self.agent.instant_reward
 
-            if  episode > 0 and episode%10 == 0:
+            if  episode > 0 and episode%self.episodes_decay == 0:
                 self.epsilon = self.epsilon * self.epsilon_decay
                 now = datetime.now()
                 print str(now) + " epsilon decay"

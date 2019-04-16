@@ -17,3 +17,4 @@ Module implementation:
 
 [X] Learning: For learning control, that will use all modules
 
+![alt text](https://raw.githubusercontent.com/esperancaleonardo/LIA_Deep_Q_Learning/master/root/log/plots/blackhole/acumulada.png)

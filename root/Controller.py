@@ -9,7 +9,6 @@ class Controller(object):
         self.id_number = None
 
 #############################################################################################################
-
     # OK
     """ inicia a conexao da API cliente em python com o servidor vrep """
     def connect(self):
@@ -23,7 +22,6 @@ class Controller(object):
 
         self.id_number = client_id
 
-
     # OK
     """ para a conexao da API cliente em python com o servidor vrep """
     def close_connection(self):
@@ -33,17 +31,15 @@ class Controller(object):
         print('Connection closed...')
 
 ############################################################################################################
-
-
     # OK
     """ inicia a simulacao do ambiente """
     def start_sim(self):
         code = vrep.simxStartSimulation(self.id_number, vrep.simx_opmode_oneshot)
+        if code != 0 and code != 1:
+            print "Error on starting sim"
         code = vrep.simxSetBooleanParameter(self.id_number, vrep.sim_boolparam_display_enabled,0, vrep.simx_opmode_oneshot)
 
 
-        if code != 0 and code != 1:
-            print "Error on starting sim"
 
     # OK
     """ para a simulacao do ambiente """
@@ -53,15 +49,12 @@ class Controller(object):
             print "Error on stopping sim"
 
 ##############################################################################################################
-
     #OK
     """ retorna um valor relacionado a um objeto da simulacao """
     def get_joint_handler(self, joint_string):
 
         code, handler = vrep.simxGetObjectHandle(self.id_number, self.name + joint_string, vrep.simx_opmode_blocking)
         return handler
-
-
 
     #OK
     """ retorna um valor em graus ou radianos (padrao graus) de uma junta de um objeto da simulacao """
@@ -74,7 +67,6 @@ class Controller(object):
         else:
             return position_rads
 
-
     #OK
     # de 0 a 2pi
     """ move uma junta a uma certa angulacao em tempo de simulacao """
@@ -83,12 +75,10 @@ class Controller(object):
         rad_conversion = joint_degree*(math.pi/180.0)
         code = vrep.simxSetJointTargetPosition(self.id_number, joint_handler, rad_conversion, vrep.simx_opmode_oneshot)
 
-
     #OK
     """ fecha o atuador da garra """
     def gripper_close(self):
         return_code = vrep.simxSetStringSignal(self.id_number,'MicoHand','true',vrep.simx_opmode_oneshot)
-
 
     #OK
     """ abre o atuador da garra """
@@ -101,7 +91,6 @@ class Controller(object):
     """ devolve uma lista de handlers dos atuadores do braco """
     def get_handlers(self, handler_strings):
         handlers = []
-
         for string in handler_strings:
             handlers.append( self.get_joint_handler(str(string) ))
 
@@ -110,9 +99,7 @@ class Controller(object):
     #OK
     """ devolve uma lista de valores de posicoes dos atuadores do braco """
     def get_positions(self, handlers_list):
-
         angles = []
-
         for handler in handlers_list:
             angles.append( self.get_joint_position(handler) )
 

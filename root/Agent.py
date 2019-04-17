@@ -1,35 +1,20 @@
-
-
-
-##
-## MAY THE CNN BE IMPLEMENTED HERE
-## how to separate the dataset? TOP/SIDE/FRONT or by actions
-## grayscale or RGB
-##
-
-import cv2 as cv, os
-import numpy as np
-from sklearn.model_selection import train_test_split
-
 import keras
 from keras.models import Sequential
 from keras.layers import Dense, Flatten, Dropout, Activation
 from keras.layers.convolutional import Conv2D, MaxPooling2D
 from keras.optimizers import Adam
+from Vision import Vision
+from Controller import Controller
+from collections import deque
+from datetime import datetime
+import cv2 as cv, os
+import numpy as np
 from time import sleep
 import math
 import sys
+
 sys.path.append("..")
-import os
 path = os.getcwd()
-
-from Vision import Vision
-from Controller import Controller
-
-from collections import deque
-from datetime import datetime
-
-##
 
 class Agent(object):
     """ docstring for Agent """
@@ -38,33 +23,31 @@ class Agent(object):
         self.input_dimension = input_dimension
         self.instant_reward = 0.0
         self.cummulative_reward = 0.0
-        self.memory = deque(maxlen=1000)
+        self.memory = deque(maxlen=10000)
         self.batch_size = int (batch_size)
         self.classes = self.number_of_actions
         self.controller = Controller("UR3", 6)
         self.controller.connect()
         self.vision = Vision('Vision_frontal','Vision_lateral','Vision_top',self.controller.id_number)
         self.model = self.create_model(input_dimension, number_of_actions, 'mean_squared_error', Adam(lr=alpha),  ['accuracy'])
-        if load == 1:
+        if load == 1:   #load previous weights if set to 1
             now = datetime.now()
             print str(now) + " loading model weights..."
             self.model.load_weights('model_weights.h5')
             now = datetime.now()
             print str(now) + " model weights load done!"
-
         self.handlers = self.manage_handlers()
         self.counter = 0
+        self.step_degrees = 20.0
 
-
+    """ manage handlers for action manipulation """
     def manage_handlers(self):
         handler_strings = []
         for i in range(0,6):
             handler_strings.append("_joint" + str(i+1))
 
         handlers = self.controller.get_handlers(handler_strings)
-
         return handlers
-
 
     """ creates the DQN model with a specified input dimension and a number of actions for the output layers """
     def create_model(self, input_dimension, number_of_actions, loss_type, optimizer, metrics_list):
@@ -89,6 +72,7 @@ class Agent(object):
 
         return model
 
+    """ decides to act randomly or not, aconding to epsilon value """
     def act(self, state, epsilon):
         if np.random.randint(0,10) <= epsilon:
             return np.random.randint(0,self.number_of_actions)
@@ -97,43 +81,44 @@ class Agent(object):
             action_values = self.model.predict(state.reshape(1,self.input_dimension,self.input_dimension,1))
             return np.argmax(action_values[0]) ## check if correct
 
+    """ moves with a certain action, moving one joint 20 degrees clockwise or counter clockwise """
     def do_step(self, action):
 
         #joint 1
         if action == 0:
-            self.controller.set_joint_position(self.handlers[0], self.controller.get_joint_position(self.handlers[0]) + 20.0)
+            self.controller.set_joint_position(self.handlers[0], self.controller.get_joint_position(self.handlers[0]) + self.step_degrees)
         elif action == 1:
-            self.controller.set_joint_position(self.handlers[0], self.controller.get_joint_position(self.handlers[0]) - 20.0)
+            self.controller.set_joint_position(self.handlers[0], self.controller.get_joint_position(self.handlers[0]) - self.step_degrees)
 
         #joint 2
         elif action == 2:
-            self.controller.set_joint_position(self.handlers[1], self.controller.get_joint_position(self.handlers[1]) + 20.0)
+            self.controller.set_joint_position(self.handlers[1], self.controller.get_joint_position(self.handlers[1]) + self.step_degrees)
         elif action == 3:
-            self.controller.set_joint_position(self.handlers[1], self.controller.get_joint_position(self.handlers[1]) - 20.0)
+            self.controller.set_joint_position(self.handlers[1], self.controller.get_joint_position(self.handlers[1]) - self.step_degrees)
 
         #joint 3
         elif action == 4:
-            self.controller.set_joint_position(self.handlers[2], self.controller.get_joint_position(self.handlers[2]) + 20.0)
+            self.controller.set_joint_position(self.handlers[2], self.controller.get_joint_position(self.handlers[2]) + self.step_degrees)
         elif action == 5:
-            self.controller.set_joint_position(self.handlers[2], self.controller.get_joint_position(self.handlers[2]) - 20.0)
+            self.controller.set_joint_position(self.handlers[2], self.controller.get_joint_position(self.handlers[2]) - self.step_degrees)
 
         #joint 4
         elif action == 6:
-            self.controller.set_joint_position(self.handlers[3], self.controller.get_joint_position(self.handlers[3]) + 20.0)
+            self.controller.set_joint_position(self.handlers[3], self.controller.get_joint_position(self.handlers[3]) + self.step_degrees)
         elif action == 7:
-            self.controller.set_joint_position(self.handlers[3], self.controller.get_joint_position(self.handlers[3]) - 20.0)
+            self.controller.set_joint_position(self.handlers[3], self.controller.get_joint_position(self.handlers[3]) - self.step_degrees)
 
         #joint 5
         elif action == 8:
-            self.controller.set_joint_position(self.handlers[4], self.controller.get_joint_position(self.handlers[4]) + 20.0)
+            self.controller.set_joint_position(self.handlers[4], self.controller.get_joint_position(self.handlers[4]) + self.step_degrees)
         elif action == 9:
-            self.controller.set_joint_position(self.handlers[4], self.controller.get_joint_position(self.handlers[4]) - 20.0)
+            self.controller.set_joint_position(self.handlers[4], self.controller.get_joint_position(self.handlers[4]) - self.step_degrees)
 
         #joint 6
         elif action == 10:
-            self.controller.set_joint_position(self.handlers[5], self.controller.get_joint_position(self.handlers[5]) + 20.0)
+            self.controller.set_joint_position(self.handlers[5], self.controller.get_joint_position(self.handlers[5]) + self.step_degrees)
         elif action == 11:
-            self.controller.set_joint_position(self.handlers[5], self.controller.get_joint_position(self.handlers[5]) - 20.0)
+            self.controller.set_joint_position(self.handlers[5], self.controller.get_joint_position(self.handlers[5]) - self.step_degrees)
 
         # gripper
         elif action == 12:
@@ -152,7 +137,7 @@ class Agent(object):
 
         return new_state, reward, done
 
-
+    """ etimates a reward value using computer vision for 3d distance between two objects """
     def get_reward(self):
         new_state = self.vision.get_image_3()
 

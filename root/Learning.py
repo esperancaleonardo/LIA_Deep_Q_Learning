@@ -4,6 +4,7 @@ from time import sleep
 import cv2 as cv
 import time
 import sys
+import csv
 import numpy as np
 from datetime import datetime
 
@@ -19,16 +20,18 @@ class Learning(object):
         self.episodes_decay = episodes_decay
         self.epochs = epochs
         self.agent = Agent(number_of_actions, input_dimension, batch_size, self.alpha, load)
+        self.csv_file = open("csv_output_log.csv", 'wa')
+        self.csv_writer = csv.writer(self.csv_file, delimiter = ',')
+        self.csv_writer.writerow(["Episode","Epsilon","Instant Reward", "Cummulative Reward"])
 
 
-
+    """ append a new action in the memory, in form of a tuple, for further replay with a batch """
     def write_memory(self, memory, state, action, reward, next_state, is_done):
         memory.append((state, action, reward, next_state, is_done))
 
-
+    """ replays the memory in a batch, learning from past actions to maximize reward """
     def replay(self, state):
         mini_batch = random.sample(self.agent.memory, int(self.agent.batch_size))
-
 
         for state, action, reward, next_state, done in mini_batch:
             if not done:
@@ -36,20 +39,17 @@ class Learning(object):
             else:
                 target = reward
 
-
             target_f = self.agent.model.predict(state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1))
             target_f[0][action] = target
             self.agent.model.fit(state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1), target_f, self.epochs, verbose=0)
 
-
-
+    """ main loop for the learning itself """
     def run(self):
-        self.agent.controller.start_sim()
-        sleep(2)
-
         run_init = time.time()
 
         for episode in range(self.episodes):
+            self.agent.controller.start_sim()
+            sleep(4)
             now = datetime.now()
             print str(now) + " starting ep " + str(episode+1)
 
@@ -57,9 +57,8 @@ class Learning(object):
             self.agent.instant_reward = 0.0
             state =  self.agent.vision.get_image_3() #state = (resolution, grayscale, colored RGB)
 
-
             for step in range(self.max_steps):
-
+                
                 action_taken = self.agent.act(state[1], self.epsilon)
                 next_state, reward, done = self.agent.do_step(action_taken) ##extrair imagem aqui dentro
                 self.agent.instant_reward = self.agent.instant_reward + reward
@@ -71,18 +70,11 @@ class Learning(object):
                     print str(now) + " DONE"
                     break
 
-                #if step > 0 and step%50==0:
-                #    now = datetime.now()
-                #    print str(now) + " step ", step
-
             end = time.time()
             self.agent.controller.stop_sim()
-            sleep(2)
+            sleep(4)
 
-            # TODO: inserir verificacao de quantidade de passos dados
             if len(self.agent.memory) > self.agent.batch_size:
-                now = datetime.now()
-                print str(now) + " REPLAY"
                 rep_init = time.time()
                 self.replay(state[1])
                 rep_end = time.time()
@@ -90,8 +82,9 @@ class Learning(object):
                 print str(now) + " replay ", str((rep_end - rep_init)/60.0), "minutes"
 
             self.agent.cummulative_reward = self.agent.cummulative_reward + self.agent.instant_reward
+            self.csv_writer.writerow([episode, self.epsilon, self.agent.instant_reward, self.agent.cummulative_reward])
 
-            if  episode > 0 and episode%self.episodes_decay == 0:
+            if  episode > 0 and (episode % self.episodes_decay == 0):
                 self.epsilon = self.epsilon * self.epsilon_decay
                 now = datetime.now()
                 print str(now) + " epsilon decay"
@@ -100,10 +93,6 @@ class Learning(object):
                 now = datetime.now()
                 print str(now) + " weights backup..."
                 self.agent.model.save_weights('model_weights.h5')
-
-
-            self.agent.controller.start_sim()
-            sleep(4)
 
             now = datetime.now()
             print str(now) + " duration (m) " + str((end - init)/60.0) + " ep " + str(episode+1) + " epsilon " + str(self.epsilon) + " ep reward " + str(self.agent.instant_reward) + " total reward " + str(self.agent.cummulative_reward)
@@ -122,3 +111,5 @@ class Learning(object):
         now = datetime.now()
         print str(now) + " saving model..."
         self.agent.model.save_weights('model_weights.h5')
+
+        self.csv_file.close()

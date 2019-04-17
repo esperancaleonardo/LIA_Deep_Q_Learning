@@ -32,8 +32,6 @@ class Vision(object):
         if upscale:
             image = cv.resize(image, (512,512))
 
-
-
         return resolution, gray, cv.cvtColor(image, cv.COLOR_BGR2RGB)
 
     # OK
@@ -51,9 +49,6 @@ class Vision(object):
         if upscale:
             image = cv.resize(image, (512,512))
 
-        # cv.imshow("side", cv.cvtColor(image, cv.COLOR_BGR2RGB))
-        # cv.waitKey(1)
-
         return resolution, gray, cv.cvtColor(image, cv.COLOR_BGR2RGB)
 
     # OK
@@ -70,8 +65,7 @@ class Vision(object):
         if upscale:
             image = cv.resize(image, (512,512))
 
-        # cv.imshow("top", cv.cvtColor(image, cv.COLOR_BGR2RGB))
-        # cv.waitKey(1)
+
         return resolution, gray, cv.cvtColor(image, cv.COLOR_BGR2RGB)
 
     # OK
@@ -95,11 +89,8 @@ class Vision(object):
 
         bmask = cv.GaussianBlur(mask, (5,5),0) # Blur the mask
 
-
-
         contours = cv.findContours(bmask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
         contours = imutils.grab_contours(contours)
-
         contours_list = []
 
         for cont in contours:

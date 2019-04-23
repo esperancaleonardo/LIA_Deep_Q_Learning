@@ -1,0 +1,18 @@
+from: can't read /var/mail/Agent
+from: can't read /var/mail/Learning
+./DQN.py: 3: ./DQN.py: import: not found
+./DQN.py: 4: ./DQN.py: import: not found
+./DQN.py: 5: ./DQN.py: import: not found
+./DQN.py: 6: ./DQN.py: import: not found
+./DQN.py: 7: ./DQN.py: import: not found
+./DQN.py: 12: ./DQN.py: os.environ[TF_CPP_MIN_LOG_LEVEL]: not found
+./DQN.py: 13: ./DQN.py: Syntax error: word unexpected (expecting ")")
+from: can't read /var/mail/Agent
+from: can't read /var/mail/Learning
+./DQN.py: 3: ./DQN.py: import: not found
+./DQN.py: 4: ./DQN.py: import: not found
+./DQN.py: 5: ./DQN.py: import: not found
+./DQN.py: 6: ./DQN.py: import: not found
+./DQN.py: 7: ./DQN.py: import: not found
+./DQN.py: 12: ./DQN.py: os.environ[TF_CPP_MIN_LOG_LEVEL]: not found
+./DQN.py: 13: ./DQN.py: Syntax error: word unexpected (expecting ")")

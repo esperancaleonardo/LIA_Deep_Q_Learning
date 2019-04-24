@@ -46,10 +46,11 @@ class Learning(object):
     """ main loop for the learning itself """
     def run(self):
         run_init = time.time()
+        self.agent.controller.start_sim()
+        sleep(4)
 
         for episode in range(self.episodes):
-            self.agent.controller.start_sim()
-            sleep(4)
+
             now = datetime.now()
             print str(now) + " starting ep " + str(episode+1)
 
@@ -72,6 +73,8 @@ class Learning(object):
 
             end = time.time()
             self.agent.controller.stop_sim()
+            sleep(4)
+            self.agent.controller.start_sim()
             sleep(4)
 
             if len(self.agent.memory) > self.agent.batch_size:

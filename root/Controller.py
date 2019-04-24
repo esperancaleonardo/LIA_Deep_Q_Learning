@@ -35,6 +35,7 @@ class Controller(object):
     """ inicia a simulacao do ambiente """
     def start_sim(self):
         code = vrep.simxStartSimulation(self.id_number, vrep.simx_opmode_oneshot)
+        print code
         if code != 0 and code != 1:
             print "Error on starting sim"
         code = vrep.simxSetBooleanParameter(self.id_number, vrep.sim_boolparam_display_enabled,0, vrep.simx_opmode_oneshot)

@@ -55,7 +55,7 @@ class Vision(object):
     """ retorna a resolucao e a imagem obtida do sensor 3 do vrep como um array """
     def get_image_3(self, grayscale = True, upscale = False):
         err, resolution, image = vrep.simxGetVisionSensorImage(self.client_id, self.sensor_3, 0, vrep.simx_opmode_buffer)
-
+	#print err, "res ", resolution
         image = array.array('b', image)
         image = I.frombuffer("RGB", (resolution[0],resolution[1]), image, "raw", "RGB", 0, 1)
         image = np.array(image)

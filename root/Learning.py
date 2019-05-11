@@ -10,7 +10,17 @@ from datetime import datetime
 
 class Learning(object):
     """ docstring for Learning """
-    def __init__(self, number_of_actions, input_dimension, load, batch_size=25, episodes = 10, max_steps = 100, epsilon = 0, gamma = 0.0, alpha = 0.0, epsilon_decay = 1.0, episodes_decay=30, epochs = 1):
+    def __init__(self, number_of_actions, input_dimension, load,
+                    batch_size=25,
+                    episodes = 10,
+                    max_steps = 100,
+                    epsilon = 0,
+                    gamma = 0.0,
+                    alpha = 0.0,
+                    epsilon_decay = 1.0,
+                    episodes_decay=30,
+                    epochs = 1
+                ):
         self.episodes = episodes
         self.max_steps = max_steps
         self.epsilon = epsilon

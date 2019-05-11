@@ -27,7 +27,19 @@ def main():
     epochs=1
     load = int(sys.argv[1])
 
-    dqn = Learning(number_of_actions, input_dimension, load, batch_size, episodes, max_steps, epsilon, gamma, alpha, epsilon_decay, episodes_decay, epochs)
+    dqn = Learning( number_of_actions,
+                    input_dimension,
+                    load,
+                    batch_size,
+                    episodes,
+                    max_steps,
+                    epsilon,
+                    gamma,
+                    alpha,
+                    epsilon_decay,
+                    episodes_decay,
+                    epochs
+                )
 
     dqn.run()
 

@@ -13,7 +13,7 @@ class Controller(object):
     """ inicia a conexao da API cliente em python com o servidor vrep """
     def connect(self):
         vrep.simxFinish(-1)
-        client_id = vrep.simxStart('127.0.0.1', 19996, True, True, 500, 5)
+        client_id = vrep.simxStart('127.0.0.1', 19997, True, True, 500, 5)
 
         if client_id != -1: # if we connected successfully
             print ('Successfully connected to remote API server')
@@ -35,7 +35,7 @@ class Controller(object):
     """ inicia a simulacao do ambiente """
     def start_sim(self):
         code = vrep.simxStartSimulation(self.id_number, vrep.simx_opmode_oneshot)
-        
+
 	if code != 0 and code != 1:
             print "Error on starting sim"
         code = vrep.simxSetBooleanParameter(self.id_number, vrep.sim_boolparam_display_enabled,0, vrep.simx_opmode_oneshot)

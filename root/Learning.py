@@ -22,7 +22,7 @@ class Learning(object):
         self.agent = Agent(number_of_actions, input_dimension, batch_size, self.alpha, load)
         self.csv_file = open("csv_output_log.csv", 'wa')
         self.csv_writer = csv.writer(self.csv_file, delimiter = ',')
-        self.csv_writer.writerow(["Episode","Epsilon","Instant Reward", "Cummulative Reward"])
+        self.csv_writer.writerow(["Episode","Epsilon","Instant Reward", "Cummulative Reward", ])
 
 
     """ append a new action in the memory, in form of a tuple, for further replay with a batch """
@@ -59,7 +59,7 @@ class Learning(object):
             state =  self.agent.vision.get_image_3() #state = (resolution, grayscale, colored RGB)
 
             for step in range(self.max_steps):
-                
+
                 action_taken = self.agent.act(state[1], self.epsilon)
                 next_state, reward, done = self.agent.do_step(action_taken) ##extrair imagem aqui dentro
                 self.agent.instant_reward = self.agent.instant_reward + reward

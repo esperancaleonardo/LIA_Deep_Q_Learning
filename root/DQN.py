@@ -16,9 +16,9 @@ tf.logging.set_verbosity(tf.logging.ERROR)
 def main():
     number_of_actions = 14
     input_dimension = 128
-    batch_size=600
+    batch_size=200
     episodes= int(sys.argv[2])
-    max_steps=150
+    max_steps=100
     epsilon=8
     gamma=0.99
     alpha=0.000006

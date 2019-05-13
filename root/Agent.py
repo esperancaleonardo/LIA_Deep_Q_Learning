@@ -168,7 +168,7 @@ class Agent(object):
             distance = math.sqrt((_3d_red[0]-_3d_blue[0])**2 + (_3d_red[1]-_3d_blue[1])**2 + (_3d_red[2]-_3d_blue[2])**2)
             #print distance
 
-            base = 500
+            base = 150
 
             if distance >= 11.0:
                 done = 0
@@ -176,7 +176,7 @@ class Agent(object):
                 done = 1
 
             if done:
-                reward = 3*base
+                reward = 10*base
             else:
                 reward = -20*distance if distance >= 50.0 else base - 2*distance
                 #reward = (1011 - distance) if done else (300 - distance)

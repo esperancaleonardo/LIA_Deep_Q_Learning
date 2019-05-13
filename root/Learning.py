@@ -54,10 +54,17 @@ class Learning(object):
             target_f[0][action] = target
             self.agent.model.fit(state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1), target_f, self.epochs, verbose=0)
 
+        # x_evall = state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1)
+        # y_evall = to_categorical()
+
+        evall = self.agent.model.evaluate()
+
+
+
     """ main loop for the learning itself """
     def run(self):
         run_init = time.time()
-        
+
         for episode in range(self.episodes):
 	    self.agent.controller.start_sim()
             sleep(4)
@@ -87,18 +94,18 @@ class Learning(object):
             self.agent.controller.stop_sim()
             sleep(4)
 
+            evall = 0
             if len(self.agent.memory) > self.agent.batch_size:
                 rep_init = time.time()
-                self.replay(state[1])
+                evall = self.replay(state[1])
                 rep_end = time.time()
                 now = datetime.now()
                 print str(now) + " replay ", str((rep_end - rep_init)/60.0), "minutes"
 
             self.agent.cummulative_reward = self.agent.cummulative_reward + self.agent.instant_reward
-	    
-	    x_evall = state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1)
-	    y_evall = to_categorical([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
-	    evall = self.agent.model.evaluate(x_evall, y_evall, steps=1, verbose=1)
+            # x_evall = state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1)
+            # y_evall = to_categorical([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
+            # evall = self.agent.model.evaluate(x_evall, y_evall, steps=1, verbose=1)
             self.csv_writer.writerow([episode, steps_done, self.epsilon, self.agent.instant_reward, self.agent.cummulative_reward, evall])
 
             if  episode > 0 and (episode % self.episodes_decay == 0):

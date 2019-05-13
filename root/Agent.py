@@ -185,7 +185,7 @@ class Agent(object):
 	else:
             now = datetime.now()
             print str(now) + " something lost"
-            reward = -1000
+            reward = -10000
             done = 1
 
         if done:

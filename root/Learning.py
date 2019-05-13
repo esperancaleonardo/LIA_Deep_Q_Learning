@@ -57,7 +57,7 @@ class Learning(object):
         # x_evall = state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1)
         # y_evall = to_categorical()
 
-        evall = self.agent.model.evaluate()
+        evall = self.agent.model.evaluate(steps=1)
 
 
 

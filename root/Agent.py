@@ -176,9 +176,9 @@ class Agent(object):
                 done = 1
 
             if done:
-                reward = 8*base
+                reward = 3*base
             else:
-                reward = -distance if distance >= 50.0 else 2*base - distance
+                reward = -2*distance if distance >= 50.0 else 2*base - distance
                 #reward = (1011 - distance) if done else (300 - distance)
 
 

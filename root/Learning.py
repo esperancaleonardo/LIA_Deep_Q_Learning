@@ -7,6 +7,7 @@ import sys
 import csv
 import numpy as np
 from datetime import datetime
+from keras.utils import to_categorical
 
 class Learning(object):
     """ docstring for Learning """
@@ -56,10 +57,10 @@ class Learning(object):
     """ main loop for the learning itself """
     def run(self):
         run_init = time.time()
-        self.agent.controller.start_sim()
-        sleep(4)
-
+        
         for episode in range(self.episodes):
+	    self.agent.controller.start_sim()
+            sleep(4)
 
             now = datetime.now()
             print str(now) + " starting ep " + str(episode+1)
@@ -85,8 +86,6 @@ class Learning(object):
             end = time.time()
             self.agent.controller.stop_sim()
             sleep(4)
-            self.agent.controller.start_sim()
-            sleep(4)
 
             if len(self.agent.memory) > self.agent.batch_size:
                 rep_init = time.time()
@@ -96,7 +95,11 @@ class Learning(object):
                 print str(now) + " replay ", str((rep_end - rep_init)/60.0), "minutes"
 
             self.agent.cummulative_reward = self.agent.cummulative_reward + self.agent.instant_reward
-            self.csv_writer.writerow([episode, steps_done, self.epsilon, self.agent.instant_reward, self.agent.cummulative_reward, self.agent.model.evaluate()])
+	    
+	    x_evall = state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1)
+	    y_evall = to_categorical([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
+	    evall = self.agent.model.evaluate(x_evall, y_evall, steps=1, verbose=1)
+            self.csv_writer.writerow([episode, steps_done, self.epsilon, self.agent.instant_reward, self.agent.cummulative_reward, evall])
 
             if  episode > 0 and (episode % self.episodes_decay == 0):
                 self.epsilon = self.epsilon * self.epsilon_decay
@@ -114,7 +117,7 @@ class Learning(object):
                               " epsilon " + str(self.epsilon) +
                               " ep reward " + str(self.agent.instant_reward) +
                               " total reward " + str(self.agent.cummulative_reward) +
-                              " Model Evaluate " + self.agent.model.evaluate())
+                              " Model Evaluate " + evall)
             run_stop = time.time()
             now = datetime.now()
             print str(now) + " running for... " + str((run_stop - run_init)/60.0) + " minutes."

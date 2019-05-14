@@ -33,7 +33,7 @@ class Learning(object):
         self.agent = Agent(number_of_actions, input_dimension, batch_size, self.alpha, load)
         self.csv_file = open("csv_output_log.csv", 'wa')
         self.csv_writer = csv.writer(self.csv_file, delimiter = ',')
-        self.csv_writer.writerow(["Episode", "Steps Done","Epsilon","Instant Reward", "Cummulative Reward", "Model Evaluate "])
+        self.csv_writer.writerow(["Episode", "Steps Done","Epsilon","Instant Reward", "Cummulative Reward"])
 
 
     """ append a new action in the memory, in form of a tuple, for further replay with a batch """
@@ -54,10 +54,6 @@ class Learning(object):
             target_f[0][action] = target
             self.agent.model.fit(state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1), target_f, self.epochs, verbose=0)
 
-        # x_evall = state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1)
-        # y_evall = to_categorical()
-
-        evall = self.agent.model.evaluate(steps=1)
 
 
 
@@ -66,7 +62,7 @@ class Learning(object):
         run_init = time.time()
 
         for episode in range(self.episodes):
-	    self.agent.controller.start_sim()
+            self.agent.controller.start_sim()
             sleep(4)
 
             now = datetime.now()
@@ -103,10 +99,7 @@ class Learning(object):
                 print str(now) + " replay ", str((rep_end - rep_init)/60.0), "minutes"
 
             self.agent.cummulative_reward = self.agent.cummulative_reward + self.agent.instant_reward
-            # x_evall = state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1)
-            # y_evall = to_categorical([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
-            # evall = self.agent.model.evaluate(x_evall, y_evall, steps=1, verbose=1)
-            self.csv_writer.writerow([episode, steps_done, self.epsilon, self.agent.instant_reward, self.agent.cummulative_reward, evall])
+            self.csv_writer.writerow([episode, steps_done, self.epsilon, self.agent.instant_reward, self.agent.cummulative_reward])
 
             if  episode > 0 and (episode % self.episodes_decay == 0):
                 self.epsilon = self.epsilon * self.epsilon_decay

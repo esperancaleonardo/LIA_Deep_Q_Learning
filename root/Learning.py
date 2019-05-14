@@ -116,7 +116,7 @@ class Learning(object):
                               " ep " + str(episode+1) +
                               " epsilon " + str(self.epsilon) +
                               " ep reward " + str(self.agent.instant_reward) +
-                              " total reward " + str(self.agent.cummulative_reward) +)
+                              " total reward " + str(self.agent.cummulative_reward))
             run_stop = time.time()
             now = datetime.now()
             print str(now) + " running for... " + str((run_stop - run_init)/60.0) + " minutes."

@@ -22,7 +22,7 @@ class Agent(object):
         self.number_of_actions = number_of_actions
         self.input_dimension = input_dimension
         self.instant_reward = 0.0
-        self.cummulative_reward = 1461905.1036898314
+        self.cummulative_reward = 7969621.084564644
         self.memory = deque(maxlen=100000)
         self.batch_size = int (batch_size)
         self.classes = self.number_of_actions

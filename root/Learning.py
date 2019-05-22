@@ -7,6 +7,7 @@ import sys
 import csv
 import numpy as np
 from datetime import datetime
+from keras.utils import to_categorical
 
 class Learning(object):
     """ docstring for Learning """
@@ -32,7 +33,7 @@ class Learning(object):
         self.agent = Agent(number_of_actions, input_dimension, batch_size, self.alpha, load)
         self.csv_file = open("csv_output_log.csv", 'wa')
         self.csv_writer = csv.writer(self.csv_file, delimiter = ',')
-        self.csv_writer.writerow(["Episode", "Steps Done","Epsilon","Instant Reward", "Cummulative Reward", "Model Evaluate "])
+        self.csv_writer.writerow(["Episode", "Steps Done","Epsilon","Instant Reward", "Cummulative Reward"])
 
 
     """ append a new action in the memory, in form of a tuple, for further replay with a batch """
@@ -53,13 +54,16 @@ class Learning(object):
             target_f[0][action] = target
             self.agent.model.fit(state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1), target_f, self.epochs, verbose=0)
 
+
+
+
     """ main loop for the learning itself """
     def run(self):
         run_init = time.time()
-        self.agent.controller.start_sim()
-        sleep(4)
 
         for episode in range(self.episodes):
+            self.agent.controller.start_sim()
+            sleep(4)
 
             now = datetime.now()
             print str(now) + " starting ep " + str(episode+1)
@@ -85,18 +89,17 @@ class Learning(object):
             end = time.time()
             self.agent.controller.stop_sim()
             sleep(4)
-            self.agent.controller.start_sim()
-            sleep(4)
 
+            evall = 0
             if len(self.agent.memory) > self.agent.batch_size:
                 rep_init = time.time()
-                self.replay(state[1])
+                evall = self.replay(state[1])
                 rep_end = time.time()
                 now = datetime.now()
                 print str(now) + " replay ", str((rep_end - rep_init)/60.0), "minutes"
 
             self.agent.cummulative_reward = self.agent.cummulative_reward + self.agent.instant_reward
-            self.csv_writer.writerow([episode, steps_done, self.epsilon, self.agent.instant_reward, self.agent.cummulative_reward, self.agent.model.evaluate()])
+            self.csv_writer.writerow([episode, steps_done, self.epsilon, self.agent.instant_reward, self.agent.cummulative_reward])
 
             if  episode > 0 and (episode % self.episodes_decay == 0):
                 self.epsilon = self.epsilon * self.epsilon_decay
@@ -113,8 +116,7 @@ class Learning(object):
                               " ep " + str(episode+1) +
                               " epsilon " + str(self.epsilon) +
                               " ep reward " + str(self.agent.instant_reward) +
-                              " total reward " + str(self.agent.cummulative_reward) +
-                              " Model Evaluate " + self.agent.model.evaluate())
+                              " total reward " + str(self.agent.cummulative_reward))
             run_stop = time.time()
             now = datetime.now()
             print str(now) + " running for... " + str((run_stop - run_init)/60.0) + " minutes."

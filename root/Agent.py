@@ -22,8 +22,8 @@ class Agent(object):
         self.number_of_actions = number_of_actions
         self.input_dimension = input_dimension
         self.instant_reward = 0.0
-        self.cummulative_reward = 0.0
-        self.memory = deque(maxlen=10000)
+        self.cummulative_reward = 7969621.084564644
+        self.memory = deque(maxlen=100000)
         self.batch_size = int (batch_size)
         self.classes = self.number_of_actions
         self.controller = Controller("UR3", 6)
@@ -168,7 +168,7 @@ class Agent(object):
             distance = math.sqrt((_3d_red[0]-_3d_blue[0])**2 + (_3d_red[1]-_3d_blue[1])**2 + (_3d_red[2]-_3d_blue[2])**2)
             #print distance
 
-            base = 500
+            base = 150
 
             if distance >= 11.0:
                 done = 0
@@ -176,16 +176,16 @@ class Agent(object):
                 done = 1
 
             if done:
-                reward = 8*base
+                reward = 10*base
             else:
-                reward = -distance if distance >= 50.0 else 2*base - distance
+                reward = -20*distance if distance >= 50.0 else base - 2*distance
                 #reward = (1011 - distance) if done else (300 - distance)
 
 
 	else:
             now = datetime.now()
             print str(now) + " something lost"
-            reward = -1000
+            reward = -10000
             done = 1
 
         if done:

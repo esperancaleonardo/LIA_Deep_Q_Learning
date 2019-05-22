@@ -22,7 +22,7 @@ class Agent(object):
         self.number_of_actions = number_of_actions
         self.input_dimension = input_dimension
         self.instant_reward = 0.0
-        self.cummulative_reward = 7969621.084564644
+        self.cummulative_reward = 0.0
         self.memory = deque(maxlen=100000)
         self.batch_size = int (batch_size)
         self.classes = self.number_of_actions
@@ -38,7 +38,7 @@ class Agent(object):
             print str(now) + " model weights load done!"
         self.handlers = self.manage_handlers()
         self.counter = 0
-        self.step_degrees = 20.0
+        self.step_degrees = 45.0
 
     """ manage handlers for action manipulation """
     def manage_handlers(self):

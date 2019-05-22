@@ -19,11 +19,11 @@ def main():
     batch_size=3000
     episodes= int(sys.argv[2])
     max_steps=300
-    epsilon=3.1777145476657447
+    epsilon=9
     gamma=0.99
     alpha=0.000006
-    epsilon_decay=0.95
-    episodes_decay=50
+    epsilon_decay=0.9
+    episodes_decay=20
     epochs=1
     load = int(sys.argv[1])
 

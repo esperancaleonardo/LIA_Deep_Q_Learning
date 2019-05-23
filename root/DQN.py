@@ -26,7 +26,7 @@ def main():
     for row in csv_reader:
         file[row[0]] = row[1]
 
-    print file
+    #print file
     csv_config.close()
 
     max_steps=int(file.get('max_steps'))

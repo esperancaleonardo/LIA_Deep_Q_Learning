@@ -1,6 +1,5 @@
 tensorflow
 keras
-datetime
 opencv-python
 numpy
 imutils

@@ -39,6 +39,8 @@ class Agent(object):
         self.handlers = self.manage_handlers()
         self.counter = 0
         self.step_degrees = 45.0
+        self.done_counter = 0
+        self.lost_counter = 0
 
     """ manage handlers for action manipulation """
     def manage_handlers(self):
@@ -172,19 +174,17 @@ class Agent(object):
 
             if distance >= 11.0:
                 done = 0
-            else:
-                done = 1
-
-            if done:
-                reward = 10*base
-            else:
                 reward = -20*distance if distance >= 50.0 else base - 2*distance
-                #reward = (1011 - distance) if done else (300 - distance)
 
+            else:
+                self.done_counter +=1
+                done = 1
+                reward = 10*base
 
 	else:
             now = datetime.now()
             print str(now) + " something lost"
+            self.lost_counter +=1
             reward = -10000
             done = 1
 

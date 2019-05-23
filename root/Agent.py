@@ -190,7 +190,7 @@ class Agent(object):
 
         if done:
             now = datetime.now()
-            print str(now) + " print"
+            #print str(now) + " print"
             cv.imwrite(filename=os.path.join(path+"/log/lost/top_"+str(self.counter)+".png"), img= colored)
             cv.imwrite(filename=os.path.join(path+"/log/lost/side_"+str(self.counter)+".png"), img= aux_colored)
             self.counter += 1

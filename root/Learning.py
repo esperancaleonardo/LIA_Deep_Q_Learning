@@ -83,7 +83,7 @@ class Learning(object):
                 state = next_state
                 if done:
                     now = datetime.now()
-                    print str(now) + " DONE"
+                    #print str(now) + " DONE"
                     break
 
             end = time.time()
@@ -119,7 +119,7 @@ class Learning(object):
                               " total reward " + str(self.agent.cummulative_reward))
             run_stop = time.time()
             now = datetime.now()
-            print str(now) + " running for... " + str((run_stop - run_init)/60.0) + " minutes."
+            # print str(now) + " running for... " + str((run_stop - run_init)/60.0) + " minutes."
 
 
         self.agent.controller.stop_sim()

@@ -29,7 +29,7 @@ class Agent(object):
         self.controller = Controller("UR3", 6)
         self.controller.connect()
         self.vision = Vision('Vision_frontal','Vision_lateral','Vision_top',self.controller.id_number)
-        self.model = self.create_model(input_dimension, number_of_actions, 'mean_squared_error', Adam(lr=alpha),  ['accuracy'])
+        self.model = self.create_model(input_dimension, number_of_actions, 'mse', Adam(lr=alpha),  ['accuracy', 'mse'])
         if load == 1:   #load previous weights if set to 1
             now = datetime.now()
             print str(now) + " loading model weights..."

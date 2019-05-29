@@ -91,7 +91,7 @@ class Learning(object):
             self.agent.controller.stop_sim()
             sleep(4)
 
-            evall = 0
+            evall = None
             if len(self.agent.memory) > self.agent.batch_size:
                 rep_init = time.time()
                 evall = self.replay(state[1])
@@ -101,7 +101,12 @@ class Learning(object):
                 print str(now) + " replay ", str((rep_end - rep_init)/60.0), "minutes"
 
             self.agent.cummulative_reward = self.agent.cummulative_reward + self.agent.instant_reward
-            self.csv_writer.writerow([episode, steps_done, evall.history['mean_squared_error'], self.agent.lost_counter, self.agent.done_counter, self.epsilon, self.agent.instant_reward, self.agent.cummulative_reward])
+
+            if evall != None:
+                self.csv_writer.writerow([episode, steps_done, evall.history['mean_squared_error'], self.agent.lost_counter, self.agent.done_counter, self.epsilon, self.agent.instant_reward, self.agent.cummulative_reward])
+            else:
+                self.csv_writer.writerow([episode, steps_done, 0, self.agent.lost_counter, self.agent.done_counter, self.epsilon, self.agent.instant_reward, self.agent.cummulative_reward])
+
 
             if  episode > 0 and (episode % self.episodes_decay == 0):
                 self.epsilon = self.epsilon * self.epsilon_decay

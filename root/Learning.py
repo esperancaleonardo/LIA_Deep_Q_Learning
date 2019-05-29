@@ -33,7 +33,7 @@ class Learning(object):
         self.agent = Agent(number_of_actions, input_dimension, batch_size, self.alpha, load)
         self.csv_file = open("csv_output_log.csv", 'wa')
         self.csv_writer = csv.writer(self.csv_file, delimiter = ',')
-        self.csv_writer.writerow(["Episode", "Steps Done","Lost Counter","Done Counter","Epsilon","Instant Reward", "Cummulative Reward"])
+        self.csv_writer.writerow(["Episode", "Steps Done", "MSE", "Lost Counter", "Done Counter", "Epsilon", "Instant Reward", "Cummulative Reward"])
 
 
     """ append a new action in the memory, in form of a tuple, for further replay with a batch """
@@ -44,6 +44,7 @@ class Learning(object):
     def replay(self, state):
         mini_batch = random.sample(self.agent.memory, int(self.agent.batch_size))
 
+
         for state, action, reward, next_state, done in mini_batch:
             if not done:
                 target = (reward + self.gamma*(np.amax(self.agent.model.predict(next_state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1))[0])))
@@ -52,9 +53,9 @@ class Learning(object):
 
             target_f = self.agent.model.predict(state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1))
             target_f[0][action] = target
-            self.agent.model.fit(state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1), target_f, self.epochs, verbose=0)
+            fit = self.agent.model.fit(state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1), target_f, self.epochs, verbose=1)
 
-
+        return fit
 
 
     """ main loop for the learning itself """
@@ -94,12 +95,13 @@ class Learning(object):
             if len(self.agent.memory) > self.agent.batch_size:
                 rep_init = time.time()
                 evall = self.replay(state[1])
+                print("mse value: ", evall.history['mean_squared_error'])
                 rep_end = time.time()
                 now = datetime.now()
                 print str(now) + " replay ", str((rep_end - rep_init)/60.0), "minutes"
 
             self.agent.cummulative_reward = self.agent.cummulative_reward + self.agent.instant_reward
-            self.csv_writer.writerow([episode, steps_done, self.agent.lost_counter, self.agent.done_counter, self.epsilon, self.agent.instant_reward, self.agent.cummulative_reward])
+            self.csv_writer.writerow([episode, steps_done, evall.history['mean_squared_error'], self.agent.lost_counter, self.agent.done_counter, self.epsilon, self.agent.instant_reward, self.agent.cummulative_reward])
 
             if  episode > 0 and (episode % self.episodes_decay == 0):
                 self.epsilon = self.epsilon * self.epsilon_decay

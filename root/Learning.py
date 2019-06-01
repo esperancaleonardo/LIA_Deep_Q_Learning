@@ -34,11 +34,13 @@ class Learning(object):
         self.csv_file = open("csv_output_log.csv", 'wa')
         self.csv_writer = csv.writer(self.csv_file, delimiter = ',')
         self.csv_writer.writerow(["Episode", "Steps Done", "MSE", "Lost Counter", "Done Counter", "Epsilon", "Instant Reward", "Cummulative Reward"])
-
+        self.heat_map = {'ACT0':0,'ACT1':0,'ACT2':0,'ACT3':0,'ACT4':0,'ACT5':0,'ACT6':0,'ACT7':0,'ACT8':0,'ACT9':0,'ACT10':0,'ACT11':0,'ACT12':0,'ACT13':0}
 
     """ append a new action in the memory, in form of a tuple, for further replay with a batch """
     def write_memory(self, memory, state, action, reward, next_state, is_done):
         memory.append((state, action, reward, next_state, is_done))
+
+        self.heat_map["ACT" + str(action)] += 1
 
     """ replays the memory in a batch, learning from past actions to maximize reward """
     def replay(self, state):
@@ -141,5 +143,8 @@ class Learning(object):
         now = datetime.now()
         print str(now) + " saving model..."
         self.agent.model.save_weights('model_weights.h5')
+
+        print("------------------------ HEAT MAP ACTIONS -------------------")
+        print(self.heat_map)
 
         self.csv_file.close()

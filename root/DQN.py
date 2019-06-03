@@ -14,7 +14,7 @@ tf.logging.set_verbosity(tf.logging.ERROR)
 
 
 def main():
-    number_of_actions = 14
+    number_of_actions = 12
     input_dimension = 128
 
     episodes= int(sys.argv[2])

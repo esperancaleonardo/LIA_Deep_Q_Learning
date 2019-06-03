@@ -119,14 +119,14 @@ class Agent(object):
         #joint 6
         elif action == 10:
             self.controller.set_joint_position(self.handlers[5], self.controller.get_joint_position(self.handlers[5]) + self.step_degrees)
-        elif action == 11:
+        else: #if action == 11:
             self.controller.set_joint_position(self.handlers[5], self.controller.get_joint_position(self.handlers[5]) - self.step_degrees)
 
-        # gripper
-        elif action == 12:
-            self.controller.gripper_open()
-        else: #action == 13:
-            self.controller.gripper_close()
+        # # gripper
+        # elif action == 12:
+        #     self.controller.gripper_open()
+        # else: #action == 13:
+        #     self.controller.gripper_close()
 
         sleep(0.5)
 

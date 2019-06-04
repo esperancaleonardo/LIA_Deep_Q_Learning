@@ -105,7 +105,7 @@ class Learning(object):
             self.agent.cummulative_reward = self.agent.cummulative_reward + self.agent.instant_reward
 
             if evall != None:
-                self.csv_writer.writerow([episode, steps_done, evall.history['mean_squared_error'], self.agent.lost_counter, self.agent.done_counter, self.epsilon, self.agent.instant_reward, self.agent.cummulative_reward])
+                self.csv_writer.writerow([episode, steps_done, evall.history['mean_squared_error'][0], self.agent.lost_counter, self.agent.done_counter, self.epsilon, self.agent.instant_reward, self.agent.cummulative_reward])
             else:
                 self.csv_writer.writerow([episode, steps_done, 0, self.agent.lost_counter, self.agent.done_counter, self.epsilon, self.agent.instant_reward, self.agent.cummulative_reward])
 

@@ -40,7 +40,7 @@ class Agent(object):
         self.counter = 0
         self.step_degrees = 45.0
         self.done_counter = 0
-        self.lost_counter = 0
+        self.step_lost_counter = 0
 
     """ manage handlers for action manipulation """
     def manage_handlers(self):
@@ -76,12 +76,17 @@ class Agent(object):
 
     """ decides to act randomly or not, aconding to epsilon value """
     def act(self, state, epsilon):
-        if np.random.randint(0,10) <= epsilon:
-            return np.random.randint(0,self.number_of_actions)
+
+        if self.step_lost_counter < 30:
+            if np.random.randint(0,10) <= epsilon:
+                return np.random.randint(0,self.number_of_actions)
+            else:
+                state = np.array(state)
+                action_values = self.model.predict(state.reshape(1,self.input_dimension,self.input_dimension,1))
+                return np.argmax(action_values[0]) ## check if correct
         else:
-            state = np.array(state)
-            action_values = self.model.predict(state.reshape(1,self.input_dimension,self.input_dimension,1))
-            return np.argmax(action_values[0]) ## check if correct
+            return np.random.randint(0,self.number_of_actions)
+
 
     """ moves with a certain action, moving one joint 20 degrees clockwise or counter clockwise """
     def do_step(self, action):
@@ -119,16 +124,16 @@ class Agent(object):
         #joint 6
         elif action == 10:
             self.controller.set_joint_position(self.handlers[5], self.controller.get_joint_position(self.handlers[5]) + self.step_degrees)
-        elif action == 11:
+        else: #if action == 11:
             self.controller.set_joint_position(self.handlers[5], self.controller.get_joint_position(self.handlers[5]) - self.step_degrees)
 
-        # gripper
-        elif action == 12:
-            self.controller.gripper_open()
-        else: #action == 13:
-            self.controller.gripper_close()
+        # # gripper
+        # elif action == 12:
+        #     self.controller.gripper_open()
+        # else: #action == 13:
+        #     self.controller.gripper_close()
 
-        sleep(0.5)
+        sleep(1)
 
         #################################################################### refazer em funcao para calcular reward
 
@@ -183,16 +188,11 @@ class Agent(object):
 
 	else:
             now = datetime.now()
-            print str(now) + " something lost"
-            self.lost_counter +=1
-            reward = -10000
-            done = 1
+            #print str(now) + " something lost"
+            self.step_lost_counter +=1
+            reward = 0.0
+            done = 0
 
-        if done:
-            now = datetime.now()
-            #print str(now) + " print"
-            cv.imwrite(filename=os.path.join(path+"/log/lost/top_"+str(self.counter)+".png"), img= colored)
-            cv.imwrite(filename=os.path.join(path+"/log/lost/side_"+str(self.counter)+".png"), img= aux_colored)
-            self.counter += 1
+            #x = raw_input()
 
         return new_state, reward, done

@@ -11,9 +11,9 @@ class Controller(object):
 #############################################################################################################
     # OK
     """ inicia a conexao da API cliente em python com o servidor vrep """
-    def connect(self):
+    def connect(self, port):
         vrep.simxFinish(-1)
-        client_id = vrep.simxStart('127.0.0.1', 19996, True, True, 500, 5)
+        client_id = vrep.simxStart('127.0.0.1', port, True, True, 500, 5)
 
         if client_id != -1: # if we connected successfully
             print ('Successfully connected to remote API server')

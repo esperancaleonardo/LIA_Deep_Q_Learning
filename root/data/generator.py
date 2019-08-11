@@ -13,11 +13,11 @@ from random import randint
 
 
 
-n_samples = 10000
+n_samples = 1
 print "acquiring " + str(n_samples) + " samples."
 path = os.getcwd()
 meu_controller = Controller("UR3", 6)
-meu_controller.connect()
+meu_controller.connect(19997)
 
 handler_strings = []
 for i in range(0,6):
@@ -33,19 +33,21 @@ vision = Vision('Vision_frontal','Vision_lateral','Vision_top',meu_controller.id
 meu_controller.start_sim()
 
 sleep(1)
+print path
 
 for cont in range(n_samples):
     print cont,
-    res, image1 = vision.get_image_1(grayscale = False, upscale = False)
-    cv.imwrite(os.path.join(path + '/front/' + str(cont) + '.jpg'), image1)
+    res, _,  image1 = vision.get_image_1(grayscale = True, upscale = False)
+    cv.imwrite(os.path.join(path + '/front_' + str(cont) + '.jpg'), image1)
+    print os.path.join(path + '/front_' + str(cont) + '.jpg')
     print "Done 1",
     sleep(1)
-    res, image2 = vision.get_image_2(grayscale = False, upscale = False)
-    cv.imwrite(os.path.join(path + '/side/' + str(cont) + '.jpg'), image2)
+    res, _, image2 = vision.get_image_2(grayscale = True, upscale = False)
+    cv.imwrite(os.path.join(path + '/side_' + str(cont) + '.jpg'), image2)
     print "Done 2",
     sleep(1)
-    res, image3 = vision.get_image_3(grayscale = False, upscale = False)
-    cv.imwrite(os.path.join(path + '/top/' + str(cont) + '.jpg'), image3)
+    res, _, image3 = vision.get_image_3(grayscale = True, upscale = False)
+    cv.imwrite(os.path.join(path + '/top_' + str(cont) + '.jpg'), image3)
     print "Done 3"
     sleep(1)
     print "moving..."

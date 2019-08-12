@@ -37,17 +37,17 @@ print path
 
 for cont in range(n_samples):
     print cont,
-    res, _,  image1 = vision.get_image_1(grayscale = True, upscale = False)
-    cv.imwrite(os.path.join(path + '/front_' + str(cont) + '.jpg'), image1)
-    print os.path.join(path + '/front_' + str(cont) + '.jpg')
+    res, _, image1 = vision.get_image(1, grayscale = True, upscale = False)
+    cv.imwrite(os.path.join(path + '/img1_' + str(cont) + '.jpg'), image1)
+    #print os.path.join(path + '/front_' + str(cont) + '.jpg')
     print "Done 1",
     sleep(1)
-    res, _, image2 = vision.get_image_2(grayscale = True, upscale = False)
-    cv.imwrite(os.path.join(path + '/side_' + str(cont) + '.jpg'), image2)
+    res, _, image2 = vision.get_image(2, grayscale = True, upscale = False)
+    cv.imwrite(os.path.join(path + '/img2_' + str(cont) + '.jpg'), image2)
     print "Done 2",
     sleep(1)
-    res, _, image3 = vision.get_image_3(grayscale = True, upscale = False)
-    cv.imwrite(os.path.join(path + '/top_' + str(cont) + '.jpg'), image3)
+    res, _, image3 = vision.get_image(3, grayscale = True, upscale = False)
+    cv.imwrite(os.path.join(path + '/img3_' + str(cont) + '.jpg'), image3)
     print "Done 3"
     sleep(1)
     print "moving..."

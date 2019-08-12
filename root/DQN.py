@@ -6,9 +6,6 @@ import sys
 import os
 import tensorflow as tf
 import csv
-
-
-
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 tf.logging.set_verbosity(tf.logging.ERROR)
 
@@ -38,21 +35,12 @@ def main():
     alpha=float(file.get('alpha'))
     gamma=float(file.get('gamma'))
 
-    dqn = Learning( number_of_actions,
-                    input_dimension,
-                    load,
-                    batch_size,
-                    episodes,
-                    max_steps,
-                    epsilon,
-                    gamma,
-                    alpha,
-                    epsilon_decay,
-                    episodes_decay,
-                    epochs
+    dqn = Learning( number_of_actions,input_dimension,load,
+                    batch_size,episodes,max_steps,
+                    epsilon,gamma,alpha,
+                    epsilon_decay,episodes_decay,epochs
                 )
     dqn.agent.cummulative_reward = float(file.get('cummulative_reward'))
-
     dqn.run()
 
     file = {'epsilon':dqn.epsilon,

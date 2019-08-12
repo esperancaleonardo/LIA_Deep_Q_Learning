@@ -1,27 +1,18 @@
 import random
 from Agent import Agent
 from time import sleep
-import cv2 as cv
-import time
-import sys
-import csv
-import numpy as np
+import cv2 as cv, numpy as np
+import time, sys, csv
 from datetime import datetime
-from keras.utils import to_categorical
 
 class Learning(object):
     """ docstring for Learning """
     def __init__(self, number_of_actions, input_dimension, load,
-                    batch_size=25,
-                    episodes = 10,
-                    max_steps = 100,
-                    epsilon = 0,
-                    gamma = 0.0,
-                    alpha = 0.0,
-                    epsilon_decay = 1.0,
-                    episodes_decay=30,
-                    epochs = 1
-                ):
+                    batch_size=25, episodes = 10,
+                    max_steps = 100, epsilon = 0,
+                    gamma = 0.0, alpha = 0.0,
+                    epsilon_decay = 1.0, episodes_decay=30,
+                    epochs = 1):
         self.episodes = episodes
         self.max_steps = max_steps
         self.epsilon = epsilon
@@ -39,27 +30,22 @@ class Learning(object):
     """ append a new action in the memory, in form of a tuple, for further replay with a batch """
     def write_memory(self, memory, state, action, reward, next_state, is_done):
         memory.append((state, action, reward, next_state, is_done))
-        #print((action, reward, is_done))
-
         self.heat_map["ACT" + str(action)] += 1
 
     """ replays the memory in a batch, learning from past actions to maximize reward """
     def replay(self, state):
         mini_batch = random.sample(self.agent.memory, int(self.agent.batch_size))
 
-
         for state, action, reward, next_state, done in mini_batch:
             if not done:
                 target = (reward + self.gamma*(np.amax(self.agent.model.predict(next_state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1))[0])))
             else:
                 target = reward
-
-            target_f = self.agent.model.predict(state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1))
-            target_f[0][action] = target
-            fit = self.agent.model.fit(state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1), target_f, self.epochs, verbose=0)
+                target_f = self.agent.model.predict(state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1))
+                target_f[0][action] = target
+                fit = self.agent.model.fit(state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1), target_f, self.epochs, verbose=0)
 
         return fit
-
 
     """ main loop for the learning itself """
     def run(self):
@@ -68,13 +54,12 @@ class Learning(object):
         for episode in range(self.episodes):
             self.agent.controller.start_sim()
             sleep(4)
-
             now = datetime.now()
             print str(now) + " starting ep " + str(episode+1)
-
             init = time.time()
+
             self.agent.instant_reward = 0.0
-            state =  self.agent.vision.get_image_3() #state = (resolution, grayscale, colored RGB)
+            state =  self.agent.vision.get_image(3) #state = (resolution, grayscale, colored RGB)
 
             steps_done = None
             for step in range(self.max_steps):
@@ -87,23 +72,22 @@ class Learning(object):
                 state = next_state
                 if done:
                     now = datetime.now()
-                    #print str(now) + " DONE"
                     break
 
             end = time.time()
             self.agent.controller.stop_sim()
-            sleep(4)
+            sleep(2)
 
             evall = None
             if len(self.agent.memory) > self.agent.batch_size:
                 rep_init = time.time()
                 evall = self.replay(state[1])
-                print("mse value: ", evall.history['mean_squared_error'])
                 rep_end = time.time()
                 now = datetime.now()
+                print(str(now) + "mse value: ", evall.history['mean_squared_error'])
                 print str(now) + " replay ", str((rep_end - rep_init)/60.0), "minutes"
 
-            self.agent.cummulative_reward = self.agent.cummulative_reward + self.agent.instant_reward
+            self.agent.cummulative_reward +=  + self.agent.instant_reward
 
             if evall != None:
                 self.csv_writer.writerow([episode, steps_done, self.agent.step_lost_counter, evall.history['mean_squared_error'][0], self.agent.done_counter, self.epsilon, self.agent.instant_reward, self.agent.cummulative_reward])
@@ -112,7 +96,7 @@ class Learning(object):
 
 
             if  episode > 0 and (episode % self.episodes_decay == 0):
-                self.epsilon = self.epsilon * self.epsilon_decay
+                self.epsilon *= self.epsilon_decay
                 now = datetime.now()
                 print str(now) + " epsilon decay"
 
@@ -132,7 +116,6 @@ class Learning(object):
             run_stop = time.time()
             now = datetime.now()
             self.agent.step_lost_counter = 0
-            # print str(now) + " running for... " + str((run_stop - run_init)/60.0) + " minutes."
 
 
         self.agent.controller.stop_sim()

@@ -31,8 +31,6 @@ class Agent(object):
         self.vision = Vision('Vision_frontal','Vision_lateral','Vision_top',self.controller.id_number)
         self.model = self.create_model(input_dimension, number_of_actions, 'mean_squared_error', Adam(lr=alpha),  ['accuracy', 'mean_squared_error'])
         if load == 1:   #load previous weights if set to 1
-            now = datetime.now()
-            print str(now) + " loading model weights..."
             self.model.load_weights('model_weights.h5')
             now = datetime.now()
             print str(now) + " model weights load done!"
@@ -67,8 +65,6 @@ class Agent(object):
         model.add(Dense(256, activation='relu'))
         model.add(Dropout(0.2))
         model.add(Dense(number_of_actions))
-
-
         model.compile(loss = loss_type, optimizer = optimizer, metrics = metrics_list)
         #model.summary()
 
@@ -90,43 +86,36 @@ class Agent(object):
 
     """ moves with a certain action, moving one joint 20 degrees clockwise or counter clockwise """
     def do_step(self, action):
-
         #joint 1
         if action == 0:
             self.controller.set_joint_position(self.handlers[0], self.controller.get_joint_position(self.handlers[0]) + self.step_degrees)
         elif action == 1:
             self.controller.set_joint_position(self.handlers[0], self.controller.get_joint_position(self.handlers[0]) - self.step_degrees)
-
         #joint 2
         elif action == 2:
             self.controller.set_joint_position(self.handlers[1], self.controller.get_joint_position(self.handlers[1]) + self.step_degrees)
         elif action == 3:
             self.controller.set_joint_position(self.handlers[1], self.controller.get_joint_position(self.handlers[1]) - self.step_degrees)
-
         #joint 3
         elif action == 4:
             self.controller.set_joint_position(self.handlers[2], self.controller.get_joint_position(self.handlers[2]) + self.step_degrees)
         elif action == 5:
             self.controller.set_joint_position(self.handlers[2], self.controller.get_joint_position(self.handlers[2]) - self.step_degrees)
-
         #joint 4
         elif action == 6:
             self.controller.set_joint_position(self.handlers[3], self.controller.get_joint_position(self.handlers[3]) + self.step_degrees)
         elif action == 7:
             self.controller.set_joint_position(self.handlers[3], self.controller.get_joint_position(self.handlers[3]) - self.step_degrees)
-
         #joint 5
         elif action == 8:
             self.controller.set_joint_position(self.handlers[4], self.controller.get_joint_position(self.handlers[4]) + self.step_degrees)
         elif action == 9:
             self.controller.set_joint_position(self.handlers[4], self.controller.get_joint_position(self.handlers[4]) - self.step_degrees)
-
         #joint 6
         elif action == 10:
             self.controller.set_joint_position(self.handlers[5], self.controller.get_joint_position(self.handlers[5]) + self.step_degrees)
         else: #if action == 11:
             self.controller.set_joint_position(self.handlers[5], self.controller.get_joint_position(self.handlers[5]) - self.step_degrees)
-
         # # gripper
         # elif action == 12:
         #     self.controller.gripper_open()
@@ -134,65 +123,42 @@ class Agent(object):
         #     self.controller.gripper_close()
 
         sleep(1)
-
-        #################################################################### refazer em funcao para calcular reward
-
         new_state, reward,  done = self.get_reward()
-
-        ################################################################### ate aqui
-
 
         return new_state, reward, done
 
     """ etimates a reward value using computer vision for 3d distance between two objects """
     def get_reward(self):
-        new_state = self.vision.get_image_3()
+        new_state = self.vision.get_image(3)[2]
+        aux_state = self.vision.get_image(2)[2]
 
-        aux_state = self.vision.get_image_2()
-
-        colored = new_state[2]
-        aux_colored = aux_state[2]
-
-        red_centers1 = self.vision.track_collor(colored, 0)
-        red_centers2 = self.vision.track_collor(aux_colored, 0)
-
-        blue_center1 = self.vision.track_collor(colored, 1)
-        blue_center2 = self.vision.track_collor(aux_colored, 1)
+        red_centers1 = self.vision.track_collor(new_state, 0)
+        red_centers2 = self.vision.track_collor(aux_state, 0)
+        blue_center1 = self.vision.track_collor(new_state, 1)
+        blue_center2 = self.vision.track_collor(aux_state, 1)
 
         if (len(blue_center1) > 0) and (len(blue_center2) > 0) and (len(red_centers1) > 0) and (len(red_centers2) > 0):
             red1 = red_centers1[0]
             red2 = red_centers2[0]
-
             blue1 = blue_center1[0]
             blue2 = blue_center2[0]
 
-            #print red1, red2, blue1, blue2
-
             _3d_red = (red1[0],red1[1],red2[1])
             _3d_blue = (blue1[0],blue1[1],blue2[1])
-            #print _3d_red, _3d_blue
 
             distance = math.sqrt((_3d_red[0]-_3d_blue[0])**2 + (_3d_red[1]-_3d_blue[1])**2 + (_3d_red[2]-_3d_blue[2])**2)
-            #print distance
-
             base = 150
 
             if distance >= 11.0:
                 done = 0
                 reward = -20*distance if distance >= 50.0 else base - 2*distance
-
             else:
                 self.done_counter +=1
                 done = 1
                 reward = 10*base
-
-	else:
-            now = datetime.now()
-            #print str(now) + " something lost"
+        else:
             self.step_lost_counter +=1
             reward = 0.0
             done = 0
-
-            #x = raw_input()
 
         return new_state, reward, done

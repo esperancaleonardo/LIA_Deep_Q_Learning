@@ -64,6 +64,7 @@ class Learning(object):
             steps_done = None
             for step in range(self.max_steps):
                 steps_done = step
+		print step, np.shape(state[1])
                 action_taken = self.agent.act(state[1], self.epsilon)
                 next_state, reward, done = self.agent.do_step(action_taken) ##extrair imagem aqui dentro
                 self.agent.instant_reward = self.agent.instant_reward + reward

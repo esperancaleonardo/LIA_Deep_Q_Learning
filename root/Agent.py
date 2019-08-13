@@ -27,7 +27,7 @@ class Agent(object):
         self.batch_size = int (batch_size)
         self.classes = self.number_of_actions
         self.controller = Controller("UR3", 6)
-        self.controller.connect()
+        self.controller.connect(19996)
         self.vision = Vision('Vision_frontal','Vision_lateral','Vision_top',self.controller.id_number)
         self.model = self.create_model(input_dimension, number_of_actions, 'mean_squared_error', Adam(lr=alpha),  ['accuracy', 'mean_squared_error'])
         if load == 1:   #load previous weights if set to 1
@@ -129,13 +129,13 @@ class Agent(object):
 
     """ etimates a reward value using computer vision for 3d distance between two objects """
     def get_reward(self):
-        new_state = self.vision.get_image(3)[2]
-        aux_state = self.vision.get_image(2)[2]
+        new_state = self.vision.get_image(3)
+        aux_state = self.vision.get_image(2)
 
-        red_centers1 = self.vision.track_collor(new_state, 0)
-        red_centers2 = self.vision.track_collor(aux_state, 0)
-        blue_center1 = self.vision.track_collor(new_state, 1)
-        blue_center2 = self.vision.track_collor(aux_state, 1)
+        red_centers1 = self.vision.track_collor(new_state[2], 0)
+        red_centers2 = self.vision.track_collor(aux_state[2], 0)
+        blue_center1 = self.vision.track_collor(new_state[2], 1)
+        blue_center2 = self.vision.track_collor(aux_state[2], 1)
 
         if (len(blue_center1) > 0) and (len(blue_center2) > 0) and (len(red_centers1) > 0) and (len(red_centers2) > 0):
             red1 = red_centers1[0]

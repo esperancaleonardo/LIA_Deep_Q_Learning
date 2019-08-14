@@ -36,16 +36,19 @@ class Learning(object):
     def replay(self, state):
         mini_batch = random.sample(self.agent.memory, int(self.agent.batch_size))
 
+	fit = None
         for state, action, reward, next_state, done in mini_batch:
-            if not done:
-                target = (reward + self.gamma*(np.amax(self.agent.model.predict(next_state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1))[0])))
-            else:
-                target = reward
+		target = reward            
+		if not done:
+        	        target = (reward + self.gamma*(np.amax(self.agent.model.predict(next_state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1))[0])))        
                 target_f = self.agent.model.predict(state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1))
                 target_f[0][action] = target
-                fit = self.agent.model.fit(state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1), target_f, self.epochs, verbose=0)
+               	fit = self.agent.model.fit(state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1), target_f, self.epochs, verbose=0)
 
-        return fit
+	if fit == None:
+		return 0
+	else:
+		return fit
 
     """ main loop for the learning itself """
     def run(self):
@@ -64,7 +67,7 @@ class Learning(object):
             steps_done = None
             for step in range(self.max_steps):
                 steps_done = step
-		print step, np.shape(state[1])
+		
                 action_taken = self.agent.act(state[1], self.epsilon)
                 next_state, reward, done = self.agent.do_step(action_taken) ##extrair imagem aqui dentro
                 self.agent.instant_reward = self.agent.instant_reward + reward

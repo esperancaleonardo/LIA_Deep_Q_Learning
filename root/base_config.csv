@@ -4,6 +4,6 @@ gamma,0.99
 alpha,6e-04
 cummulative_reward,0.0
 epsilon,9
-max_steps,100
-batch_size,400
+max_steps,300
+batch_size,1000
 episodes_decay,20

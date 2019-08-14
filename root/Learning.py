@@ -36,19 +36,20 @@ class Learning(object):
     def replay(self, state):
         mini_batch = random.sample(self.agent.memory, int(self.agent.batch_size))
 
-	fit = None
+        fit = None
         for state, action, reward, next_state, done in mini_batch:
-		target = reward
-		if not done:
-            target = (reward + self.gamma*(np.amax(self.agent.model.predict(next_state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1))[0])))
-        target_f = self.agent.model.predict(state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1))
-        target_f[0][action] = target
-        fit = self.agent.model.fit(state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1), target_f, self.epochs, verbose=0)
+            target = reward
+            if not done:
+                target = (reward + self.gamma*(np.amax(self.agent.model.predict(next_state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1))[0])))
 
-	if fit == None:
-		return 0
-	else:
-		return fit
+            target_f = self.agent.model.predict(state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1))
+            target_f[0][action] = target
+            fit = self.agent.model.fit(state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1), target_f, self.epochs, verbose=0)
+
+        if fit == None:
+            return 0
+        else:
+            return fit
 
     """ main loop for the learning itself """
     def run(self):
@@ -80,15 +81,15 @@ class Learning(object):
 
             end = time.time()
             self.agent.controller.stop_sim()
-            sleep(2)
+            sleep(1)
 
             evall = None
-            if len(self.agent.memory) > self.agent.batch_size:
+            if len(self.agent.memory) > int(self.agent.batch_size):
                 rep_init = time.time()
                 evall = self.replay(state[1])
                 rep_end = time.time()
                 now = datetime.now()
-                print(str(now) + "mse value: ", evall.history['mean_squared_error'])
+                print str(now) + "mse value: ", evall.history['mean_squared_error']
                 print str(now) + " replay ", str((rep_end - rep_init)/60.0), "minutes"
 
             self.agent.cummulative_reward +=  + self.agent.instant_reward

@@ -4,6 +4,7 @@ from time import sleep
 import cv2 as cv, numpy as np
 import time, sys, csv
 from datetime import datetime
+from tqdm import tqdm
 
 class Learning(object):
     """ docstring for Learning """
@@ -61,7 +62,7 @@ class Learning(object):
             state =  self.agent.vision.get_image(3) #state = (resolution, grayscale, colored RGB)
 
             steps_done = None
-            for step in range(self.max_steps):
+            for step in tqdm(range(self.max_steps)):
                 steps_done = step
 
                 action_taken = self.agent.act(state[1], self.epsilon)
@@ -84,7 +85,7 @@ class Learning(object):
                 evall = self.replay(state[1])
                 rep_end = time.time()
                 now = datetime.now()
-                print str(now) + "mse value: ", evall.history['mean_squared_error']
+                print str(now) + " mse value: ", evall.history['mean_squared_error']
                 print str(now) + " replay ", str((rep_end - rep_init)/60.0), "minutes"
 
             self.agent.cummulative_reward +=  + self.agent.instant_reward
@@ -121,5 +122,3 @@ class Learning(object):
 
         print("------------------------ HEAT MAP ACTIONS -------------------")
         print(self.heat_map)
-
-        self.csv_file.close()

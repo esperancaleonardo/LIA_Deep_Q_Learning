@@ -5,5 +5,5 @@ alpha,6e-04
 cummulative_reward,0.0
 epsilon,9
 max_steps,300
-batch_size,3000
+batch_size,1000
 episodes_decay,20

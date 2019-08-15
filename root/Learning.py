@@ -22,9 +22,6 @@ class Learning(object):
         self.episodes_decay = episodes_decay
         self.epochs = epochs
         self.agent = Agent(number_of_actions, input_dimension, batch_size, self.alpha, load)
-        self.csv_file = open("csv_output_log.csv", 'wa')
-        self.csv_writer = csv.writer(self.csv_file, delimiter = ',')
-        self.csv_writer.writerow(["Episode", "Steps Done", "Steps Lost", "MSE", "Done Counter", "Epsilon", "Instant Reward", "Cummulative Reward"])
         self.heat_map = {'ACT0':0,'ACT1':0,'ACT2':0,'ACT3':0,'ACT4':0,'ACT5':0,'ACT6':0,'ACT7':0,'ACT8':0,'ACT9':0,'ACT10':0,'ACT11':0,'ACT12':0,'ACT13':0}
 
     """ append a new action in the memory, in form of a tuple, for further replay with a batch """
@@ -36,21 +33,23 @@ class Learning(object):
     def replay(self, state):
         mini_batch = random.sample(self.agent.memory, int(self.agent.batch_size))
 
+        fit = None
         for state, action, reward, next_state, done in mini_batch:
+            target = reward
             if not done:
                 target = (reward + self.gamma*(np.amax(self.agent.model.predict(next_state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1))[0])))
-            else:
-                target = reward
-                target_f = self.agent.model.predict(state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1))
-                target_f[0][action] = target
-                fit = self.agent.model.fit(state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1), target_f, self.epochs, verbose=0)
 
-        return fit
+            target_f = self.agent.model.predict(state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1))
+            target_f[0][action] = target
+            fit = self.agent.model.fit(state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1), target_f, self.epochs, verbose=0)
+
+        if fit == None:
+            return 0
+        else:
+            return fit
 
     """ main loop for the learning itself """
     def run(self):
-        run_init = time.time()
-
         for episode in range(self.episodes):
             self.agent.controller.start_sim()
             sleep(4)
@@ -64,6 +63,7 @@ class Learning(object):
             steps_done = None
             for step in range(self.max_steps):
                 steps_done = step
+
                 action_taken = self.agent.act(state[1], self.epsilon)
                 next_state, reward, done = self.agent.do_step(action_taken) ##extrair imagem aqui dentro
                 self.agent.instant_reward = self.agent.instant_reward + reward
@@ -76,24 +76,18 @@ class Learning(object):
 
             end = time.time()
             self.agent.controller.stop_sim()
-            sleep(2)
+            sleep(1)
 
             evall = None
-            if len(self.agent.memory) > self.agent.batch_size:
+            if len(self.agent.memory) > int(self.agent.batch_size):
                 rep_init = time.time()
                 evall = self.replay(state[1])
                 rep_end = time.time()
                 now = datetime.now()
-                print(str(now) + "mse value: ", evall.history['mean_squared_error'])
+                print str(now) + "mse value: ", evall.history['mean_squared_error']
                 print str(now) + " replay ", str((rep_end - rep_init)/60.0), "minutes"
 
             self.agent.cummulative_reward +=  + self.agent.instant_reward
-
-            if evall != None:
-                self.csv_writer.writerow([episode, steps_done, self.agent.step_lost_counter, evall.history['mean_squared_error'][0], self.agent.done_counter, self.epsilon, self.agent.instant_reward, self.agent.cummulative_reward])
-            else:
-                self.csv_writer.writerow([episode, steps_done, self.agent.step_lost_counter, 0, self.agent.done_counter, self.epsilon, self.agent.instant_reward, self.agent.cummulative_reward])
-
 
             if  episode > 0 and (episode % self.episodes_decay == 0):
                 self.epsilon *= self.epsilon_decay
@@ -113,17 +107,13 @@ class Learning(object):
                               " total reward " + str(self.agent.cummulative_reward) +
                               " times done " + str(self.agent.done_counter) +
                               " steps lost " + str(self.agent.step_lost_counter))
-            run_stop = time.time()
-            now = datetime.now()
+
             self.agent.step_lost_counter = 0
 
 
         self.agent.controller.stop_sim()
         self.agent.controller.close_connection()
 
-        run_stop = time.time()
-        now = datetime.now()
-        print str(now) + " running for... " + str((run_stop - run_init)/60.0) + " minutes."
 
         now = datetime.now()
         print str(now) + " saving model..."

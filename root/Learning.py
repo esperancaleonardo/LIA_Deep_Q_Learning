@@ -22,9 +22,6 @@ class Learning(object):
         self.episodes_decay = episodes_decay
         self.epochs = epochs
         self.agent = Agent(number_of_actions, input_dimension, batch_size, self.alpha, load)
-        self.csv_file = open("csv_output_log.csv", 'wa')
-        self.csv_writer = csv.writer(self.csv_file, delimiter = ',')
-        self.csv_writer.writerow(["Episode", "Steps Done", "Steps Lost", "MSE", "Done Counter", "Epsilon", "Instant Reward", "Cummulative Reward"])
         self.heat_map = {'ACT0':0,'ACT1':0,'ACT2':0,'ACT3':0,'ACT4':0,'ACT5':0,'ACT6':0,'ACT7':0,'ACT8':0,'ACT9':0,'ACT10':0,'ACT11':0,'ACT12':0,'ACT13':0}
 
     """ append a new action in the memory, in form of a tuple, for further replay with a batch """
@@ -53,8 +50,6 @@ class Learning(object):
 
     """ main loop for the learning itself """
     def run(self):
-        run_init = time.time()
-
         for episode in range(self.episodes):
             self.agent.controller.start_sim()
             sleep(4)
@@ -94,12 +89,6 @@ class Learning(object):
 
             self.agent.cummulative_reward +=  + self.agent.instant_reward
 
-            if evall != None:
-                self.csv_writer.writerow([episode, steps_done, self.agent.step_lost_counter, evall.history['mean_squared_error'][0], self.agent.done_counter, self.epsilon, self.agent.instant_reward, self.agent.cummulative_reward])
-            else:
-                self.csv_writer.writerow([episode, steps_done, self.agent.step_lost_counter, 0, self.agent.done_counter, self.epsilon, self.agent.instant_reward, self.agent.cummulative_reward])
-
-
             if  episode > 0 and (episode % self.episodes_decay == 0):
                 self.epsilon *= self.epsilon_decay
                 now = datetime.now()
@@ -118,17 +107,13 @@ class Learning(object):
                               " total reward " + str(self.agent.cummulative_reward) +
                               " times done " + str(self.agent.done_counter) +
                               " steps lost " + str(self.agent.step_lost_counter))
-            run_stop = time.time()
-            now = datetime.now()
+
             self.agent.step_lost_counter = 0
 
 
         self.agent.controller.stop_sim()
         self.agent.controller.close_connection()
 
-        run_stop = time.time()
-        now = datetime.now()
-        print str(now) + " running for... " + str((run_stop - run_init)/60.0) + " minutes."
 
         now = datetime.now()
         print str(now) + " saving model..."

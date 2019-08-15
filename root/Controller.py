@@ -17,8 +17,8 @@ class Controller(object):
 
         if client_id != -1: # if we connected successfully
             print ('Successfully connected to remote API server')
-        print "Client ID: ", client_id
-        self.id_number = client_id
+            print "Client ID: ", client_id
+            self.id_number = client_id
 
     # OK
     """ para a conexao da API cliente em python com o servidor vrep """

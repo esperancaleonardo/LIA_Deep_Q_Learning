@@ -5,6 +5,8 @@ import cv2 as cv, numpy as np
 import time, sys, csv
 from datetime import datetime
 from tqdm import tqdm
+from Results import Results
+import os
 
 class Learning(object):
     """ docstring for Learning """
@@ -24,18 +26,20 @@ class Learning(object):
         self.epochs = epochs
         self.agent = Agent(number_of_actions, input_dimension, batch_size, self.alpha, load)
         self.heat_map = {'ACT0':0,'ACT1':0,'ACT2':0,'ACT3':0,'ACT4':0,'ACT5':0,'ACT6':0,'ACT7':0,'ACT8':0,'ACT9':0,'ACT10':0,'ACT11':0,'ACT12':0,'ACT13':0}
+        self.analyzer = Results()
 
     """ append a new action in the memory, in form of a tuple, for further replay with a batch """
     def write_memory(self, memory, state, action, reward, next_state, is_done):
         memory.append((state, action, reward, next_state, is_done))
-        self.heat_map["ACT" + str(action)] += 1
+        #self.heat_map["ACT" + str(action)] += 1
 
     """ replays the memory in a batch, learning from past actions to maximize reward """
     def replay(self, state):
+
         mini_batch = random.sample(self.agent.memory, int(self.agent.batch_size))
 
         fit = None
-        for state, action, reward, next_state, done in mini_batch:
+        for state, action, reward, next_state, done in tqdm(mini_batch):
             target = reward
             if not done:
                 target = (reward + self.gamma*(np.amax(self.agent.model.predict(next_state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1))[0])))
@@ -59,21 +63,25 @@ class Learning(object):
             init = time.time()
 
             self.agent.instant_reward = 0.0
-            state =  self.agent.vision.get_image(3) #state = (resolution, grayscale, colored RGB)
+            state =  self.agent.vision.get_image(2) #state = (resolution, grayscale, colored RGB)
 
             steps_done = None
             for step in tqdm(range(self.max_steps)):
                 steps_done = step
 
+                cv.imshow("state", state[2])
+                cv.waitKey(1)
+
                 action_taken = self.agent.act(state[1], self.epsilon)
                 next_state, reward, done = self.agent.do_step(action_taken) ##extrair imagem aqui dentro
-                self.agent.instant_reward = self.agent.instant_reward + reward
-
+                self.agent.instant_reward += reward
                 self.write_memory(self.agent.memory, state, action_taken, reward, next_state, done)
                 state = next_state
                 if done:
-                    now = datetime.now()
                     break
+
+            self.analyzer.steps_list.append(step+1)
+
 
             end = time.time()
             self.agent.controller.stop_sim()
@@ -85,40 +93,46 @@ class Learning(object):
                 evall = self.replay(state[1])
                 rep_end = time.time()
                 now = datetime.now()
-                print str(now) + " mse value: ", evall.history['mean_squared_error']
-                print str(now) + " replay ", str((rep_end - rep_init)/60.0), "minutes"
+                self.analyzer.mse_values.append(evall.history['mean_squared_error'])
+                print str(now) + " mse value: ", str(round(evall.history['mean_squared_error'][0], 2)), " replay ", str(round((rep_end - rep_init)/60.0,2)), "minutes"
 
-            self.agent.cummulative_reward +=  + self.agent.instant_reward
+            self.analyzer.rewards_list.append(self.agent.instant_reward)
+            self.agent.cummulative_reward += self.agent.instant_reward
 
             if  episode > 0 and (episode % self.episodes_decay == 0):
                 self.epsilon *= self.epsilon_decay
                 now = datetime.now()
-                print str(now) + " epsilon decay"
+                #print str(now) + " epsilon decay"
 
             if episode > 0 and episode%10 == 0:
                 now = datetime.now()
-                print str(now) + " weights backup..."
+                #print str(now) + " weights backup..."
                 self.agent.model.save_weights('model_weights.h5')
 
             now = datetime.now()
-            print (str(now) + " duration (m) " + str((end - init)/60.0) +
-                              " ep " + str(episode+1) +
-                              " epsilon " + str(self.epsilon) +
-                              " ep reward " + str(self.agent.instant_reward) +
-                              " total reward " + str(self.agent.cummulative_reward) +
-                              " times done " + str(self.agent.done_counter) +
-                              " steps lost " + str(self.agent.step_lost_counter))
+            print (str(now) + " duration " + str(round((end - init)/60.0, 2)) +
+                              " min //  ep " + str(episode+1) +
+                              " // reward " + str(round(self.agent.instant_reward, 2)))
 
             self.agent.step_lost_counter = 0
 
 
         self.agent.controller.stop_sim()
         self.agent.controller.close_connection()
-
+        cv.destroyAllWindows()
 
         now = datetime.now()
-        print str(now) + " saving model..."
+        #print str(now) + " saving model..."
         self.agent.model.save_weights('model_weights.h5')
 
-        print("------------------------ HEAT MAP ACTIONS -------------------")
-        print(self.heat_map)
+        #print("------------------------ HEAT MAP ACTIONS -------------------")
+        #print(self.heat_map)
+
+        now = datetime.now()
+
+        os.chdir("logs")
+        os.mkdir(str(now))
+        self.analyzer.plot_raw(self.analyzer.rewards_list, self.analyzer.reward_fig, str(now), "Reward x Episodio", "Reward")
+        self.analyzer.plot_raw(self.analyzer.steps_list, self.analyzer.steps_fig, str(now), "Steps Gastos x Episodio", "Steps")
+        self.analyzer.plot_raw(self.analyzer.mse_values, self.analyzer.mse_fig, str(now), "Mean Squared Error x Episodio", "Valor MSE", normalize=True)
+        

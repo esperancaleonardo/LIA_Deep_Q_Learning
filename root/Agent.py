@@ -81,6 +81,7 @@ class Agent(object):
                 action_values = self.model.predict(state.reshape(1,self.input_dimension,self.input_dimension,1))
                 return np.argmax(action_values[0]) ## check if correct
         else:
+            self.step_lost_counter = 0
             return np.random.randint(0,self.number_of_actions)
 
 
@@ -122,20 +123,20 @@ class Agent(object):
         # else: #action == 13:
         #     self.controller.gripper_close()
 
-        sleep(1.5)
+        sleep(0.3)
         new_state, reward,  done = self.get_reward()
 
         return new_state, reward, done
 
     """ etimates a reward value using computer vision for 3d distance between two objects """
     def get_reward(self):
-        new_state = self.vision.get_image(3)
-        aux_state = self.vision.get_image(2)
+        new_state = self.vision.get_image(2)
+        aux_state = self.vision.get_image(3)
 
-        red_centers1 = self.vision.track_collor(new_state[2], 0)
-        red_centers2 = self.vision.track_collor(aux_state[2], 0)
-        blue_center1 = self.vision.track_collor(new_state[2], 1)
-        blue_center2 = self.vision.track_collor(aux_state[2], 1)
+        red_centers1 = self.vision.track_collor(aux_state[2], 0)
+        red_centers2 = self.vision.track_collor(new_state[2], 0)
+        blue_center1 = self.vision.track_collor(aux_state[2], 1)
+        blue_center2 = self.vision.track_collor(new_state[2], 1)
 
         if (len(blue_center1) > 0) and (len(blue_center2) > 0) and (len(red_centers1) > 0) and (len(red_centers2) > 0):
             red1 = red_centers1[0]
@@ -145,6 +146,8 @@ class Agent(object):
 
             _3d_red = (red1[0],red1[1],red2[1])
             _3d_blue = (blue1[0],blue1[1],blue2[1])
+
+            #print(_3d_red, _3d_blue)
 
             distance = math.sqrt((_3d_red[0]-_3d_blue[0])**2 + (_3d_red[1]-_3d_blue[1])**2 + (_3d_red[2]-_3d_blue[2])**2)
             base = 150

@@ -34,7 +34,7 @@ class Controller(object):
         code = vrep.simxStartSimulation(self.id_number, vrep.simx_opmode_oneshot)
         if code != 0 and code != 1:
             print "Error on starting sim"
-        #code = vrep.simxSetBooleanParameter(self.id_number, vrep.sim_boolparam_display_enabled,0, vrep.simx_opmode_oneshot)
+        code = vrep.simxSetBooleanParameter(self.id_number, vrep.sim_boolparam_display_enabled,0, vrep.simx_opmode_oneshot)
 
     # OK
     """ para a simulacao do ambiente """
@@ -65,17 +65,17 @@ class Controller(object):
     """ move uma junta a uma certa angulacao em tempo de simulacao """
     def set_joint_position(self, joint_handler, joint_degree):
         rad_conversion = joint_degree*(math.pi/180.0)
-        code = vrep.simxSetJointTargetPosition(self.id_number, joint_handler, rad_conversion, vrep.simx_opmode_oneshot)
+        code = vrep.simxSetJointTargetPosition(self.id_number, joint_handler, rad_conversion, vrep.simx_opmode_blocking)
 
     #OK
     """ fecha o atuador da garra """
     def gripper_close(self):
-        return_code = vrep.simxSetStringSignal(self.id_number,'MicoHand','true',vrep.simx_opmode_oneshot)
+        return_code = vrep.simxSetStringSignal(self.id_number,'MicoHand','true',vrep.simx_opmode_blocking)
 
     #OK
     """ abre o atuador da garra """
     def gripper_open(self):
-        return_code = vrep.simxSetStringSignal(self.id_number,'MicoHand','false',vrep.simx_opmode_oneshot)
+        return_code = vrep.simxSetStringSignal(self.id_number,'MicoHand','false',vrep.simx_opmode_blocking)
 
 ################################################################################################################
 

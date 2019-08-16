@@ -41,6 +41,8 @@ def main():
     dqn.agent.cummulative_reward = float(file.get('cummulative_reward'))
     dqn.run()
 
+    os.chdir("root")
+
     file = {'epsilon':dqn.epsilon,
             'cummulative_reward':dqn.agent.cummulative_reward,
             'max_steps':dqn.max_steps,

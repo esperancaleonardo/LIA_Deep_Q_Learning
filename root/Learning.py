@@ -28,23 +28,32 @@ class Learning(object):
         self.analyzer = Results()
 
     """ append a new action in the memory, in form of a tuple, for further replay with a batch """
-    def write_memory(self, memory, state, action, reward, next_state, is_done):
-        memory.append((state, action, reward, next_state, is_done))
+    def write_memory(self, memory, state_list, action, reward, next_state_list, is_done):
+        memory.append((state_list, action, reward, next_state_list, is_done))
 
     """ replays the memory in a batch, learning from past actions to maximize reward """
-    def replay(self, state):
+    def replay(self):
 
         mini_batch = random.sample(self.agent.memory, int(self.agent.batch_size))
 
         fit = None
-        for state, action, reward, next_state, done in tqdm(mini_batch):
+        for state_list, action, reward, next_state_list, done in tqdm(mini_batch):
             target = reward
             if not done:
-                target = (reward + self.gamma*(np.amax(self.agent.model.predict(next_state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1))[0])))
+                target = (reward + self.gamma*(np.amax(self.agent.model.predict(
+                                                   [next_state_list[0][1].reshape(1,self.input_dimension,self.input_dimension,1),
+                                                    next_state_list[1][1].reshape(1,self.input_dimension,self.input_dimension,1),
+                                                    next_state_list[2][1].reshape(1,self.input_dimension,self.input_dimension,1)])[0])))
 
-            target_f = self.agent.model.predict(state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1))
+            target_f = self.agent.model.predict(
+                                               [state_list[0][1].reshape(1,self.input_dimension,self.input_dimension,1),
+                                                state_list[1][1].reshape(1,self.input_dimension,self.input_dimension,1),
+                                                state_list[2][1].reshape(1,self.input_dimension,self.input_dimension,1)])
             target_f[0][action] = target
-            fit = self.agent.model.fit(state[1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1), target_f, self.epochs, verbose=0)
+            fit = self.agent.model.fit([state_list[0][1].reshape(1,self.input_dimension,self.input_dimension,1),
+                                        state_list[1][1].reshape(1,self.input_dimension,self.input_dimension,1),
+                                        state_list[2][1].reshape(1,self.input_dimension,self.input_dimension,1)],
+                                        target_f, self.epochs, verbose=0)
 
         if fit == None:
             return 0
@@ -53,6 +62,8 @@ class Learning(object):
 
     """ main loop for the learning itself """
     def run(self):
+        black = np.zeros((299,299,3), np.uint8)
+
         for episode in range(self.episodes):
             self.agent.controller.start_sim()
             sleep(4)
@@ -61,20 +72,28 @@ class Learning(object):
             init = time.time()
 
             self.agent.instant_reward = 0.0
-            state =  self.agent.vision.get_image(2) #state = (resolution, grayscale, colored RGB)
+            state_list.append(self.agent.vision.get_image(1)) #state = (resolution, grayscale, colored RGB)
+            state_list.append(self.agent.vision.get_image(2)) #state = (resolution, grayscale, colored RGB)
+            state_list.append(self.agent.vision.get_image(3)) #state = (resolution, grayscale, colored RGB)
 
             steps_done = None
             for step in tqdm(range(self.max_steps)):
                 steps_done = step
 
-                cv.imshow("state", state[2])
+                h1 = np.concatenate((state_list[0][2], state_list[1][2]), axis=1)
+                h2 = np.concatenate((state_list[2][2], black), axis=1)
+                full = np.concatenate((h1, h2), axis=0)
+                cv.imshow("state", full)
                 cv.waitKey(1)
 
-                action_taken = self.agent.act(state[1], self.epsilon)
-                next_state, reward, done = self.agent.do_step(action_taken) ##extrair imagem aqui dentro
+                action_taken = self.agent.act(state_list[0], state_list[1], state_list[2], self.epsilon)
+                next_state1, next_state2, next_state3, reward, done = self.agent.do_step(action_taken) ##extrair imagem aqui dentro
                 self.agent.instant_reward += reward
-                self.write_memory(self.agent.memory, state, action_taken, reward, next_state, done)
-                state = next_state
+                self.write_memory(self.agent.memory, state_list, action_taken, reward, [next_state1, next_state2, next_state3], done)
+                state_list[0] = next_state1
+                state_list[1] = next_state2
+                state_list[2] = next_state3
+
                 if done:
                     break
 
@@ -88,7 +107,7 @@ class Learning(object):
             evall = None
             if len(self.agent.memory) > int(self.agent.batch_size):
                 rep_init = time.time()
-                evall = self.replay(state[1])
+                evall = self.replay()
                 rep_end = time.time()
                 now = datetime.now()
                 self.analyzer.mse_values.append(evall.history['mean_squared_error'])

@@ -51,34 +51,78 @@ class Agent(object):
 
     """ creates the DQN model with a specified input dimension and a number of actions for the output layers """
     def create_model(self, input_dimension, number_of_actions, loss_type, optimizer, metrics_list):
-        model = Sequential()
+        model1 = Sequential()
+        model2 = Sequential()
+        model3 = Sequential()
 
-        model.add(Conv2D(32, kernel_size=(5, 5), activation='relu', input_shape=(input_dimension,input_dimension, 1)))
-        model.add(MaxPooling2D(pool_size=(2, 2)))
-        model.add(Conv2D(64, (5, 5), activation='relu'))
-        model.add(MaxPooling2D(pool_size=(2, 2)))
-        model.add(Conv2D(64, (5, 5), activation='relu'))
-        model.add(MaxPooling2D(pool_size=(2, 2)))
-        model.add(Dropout(0.25))
-        model.add(Flatten())
-        model.add(Dense(4096))
-        model.add(Dense(256, activation='relu'))
-        model.add(Dropout(0.2))
-        model.add(Dense(number_of_actions))
-        model.compile(loss = loss_type, optimizer = optimizer, metrics = metrics_list)
-        #model.summary()
+        model1.add(Conv2D(32, kernel_size=(5, 5), activation='relu', input_shape=(input_dimension,input_dimension, 1)))
+        model1.add(MaxPooling2D(pool_size=(2, 2)))
+        model1.add(Conv2D(64, (5, 5), activation='relu'))
+        model1.add(MaxPooling2D(pool_size=(2, 2)))
+        model1.add(Conv2D(64, (5, 5), activation='relu'))
+        model1.add(MaxPooling2D(pool_size=(2, 2)))
+        model1.add(Dropout(0.25))
+        model1.add(Flatten())
+        ###################################################################################################
+        model2.add(Conv2D(32, kernel_size=(5, 5), activation='relu', input_shape=(input_dimension,input_dimension, 1)))
+        model2.add(MaxPooling2D(pool_size=(2, 2)))
+        model2.add(Conv2D(64, (5, 5), activation='relu'))
+        model2.add(MaxPooling2D(pool_size=(2, 2)))
+        model2.add(Conv2D(64, (5, 5), activation='relu'))
+        model2.add(MaxPooling2D(pool_size=(2, 2)))
+        model2.add(Dropout(0.25))
+        model2.add(Flatten())
+        ###################################################################################################
+        model3.add(Conv2D(32, kernel_size=(5, 5), activation='relu', input_shape=(input_dimension,input_dimension, 1)))
+        model3.add(MaxPooling2D(pool_size=(2, 2)))
+        model3.add(Conv2D(64, (5, 5), activation='relu'))
+        model3.add(MaxPooling2D(pool_size=(2, 2)))
+        model3.add(Conv2D(64, (5, 5), activation='relu'))
+        model3.add(MaxPooling2D(pool_size=(2, 2)))
+        model3.add(Dropout(0.25))
+        model3.add(Flatten())
+
+        combined = concatenate([model1.output, model2.output, model3.output])
+        x = Dense(4096)(combined)
+        x = Dense(256, activation='relu')(x)
+        x = Dropout(0.2)(x)
+        x = Dense(number_of_actions)(x)
+
+        model = Model(inputs=[model1.input, model2.input, model3.input], output=x)
+        model.compile(loss = 'loss_type', optimizer = optimizer, metrics = metrics_list)
+
+        # model.add(Conv2D(32, kernel_size=(5, 5), activation='relu', input_shape=(input_dimension,input_dimension, 1)))
+        # model.add(MaxPooling2D(pool_size=(2, 2)))
+        # model.add(Conv2D(64, (5, 5), activation='relu'))
+        # model.add(MaxPooling2D(pool_size=(2, 2)))
+        # model.add(Conv2D(64, (5, 5), activation='relu'))
+        # model.add(MaxPooling2D(pool_size=(2, 2)))
+        # model.add(Dropout(0.25))
+        # model.add(Flatten())
+        # model.add(Dense(4096))
+        # model.add(Dense(256, activation='relu'))
+        # model.add(Dropout(0.2))
+        # model.add(Dense(number_of_actions))
+        # model.compile(loss = loss_type, optimizer = optimizer, metrics = metrics_list)
+        # #model.summary()
 
         return model
 
     """ decides to act randomly or not, aconding to epsilon value """
-    def act(self, state, epsilon):
+    def act(self, state1, state2, state3, epsilon):
 
         if self.step_lost_counter < 30:
             if np.random.randint(0,10) <= epsilon:
                 return np.random.randint(0,self.number_of_actions)
             else:
-                state = np.array(state)
-                action_values = self.model.predict(state.reshape(1,self.input_dimension,self.input_dimension,1))
+                state1 = np.array(state1)
+                state2 = np.array(state2)
+                state3 = np.array(state3)
+                action_values = self.model.predict(
+                                                   [state1.reshape(1,self.input_dimension,self.input_dimension,1),
+                                                    state2.reshape(1,self.input_dimension,self.input_dimension,1),
+                                                    state3.reshape(1,self.input_dimension,self.input_dimension,1)]
+                                                  )
                 return np.argmax(action_values[0]) ## check if correct
         else:
             self.step_lost_counter = 0
@@ -124,19 +168,21 @@ class Agent(object):
         #     self.controller.gripper_close()
 
         sleep(0.3)
-        new_state, reward,  done = self.get_reward()
+        new_state1, new_state2, new_state3, reward,  done = self.get_reward()
 
-        return new_state, reward, done
+        return new_state1, new_state2, new_state3, reward, done
 
     """ etimates a reward value using computer vision for 3d distance between two objects """
     def get_reward(self):
-        new_state = self.vision.get_image(2)
-        aux_state = self.vision.get_image(3)
 
-        red_centers1 = self.vision.track_collor(aux_state[2], 0)
-        red_centers2 = self.vision.track_collor(new_state[2], 0)
-        blue_center1 = self.vision.track_collor(aux_state[2], 1)
-        blue_center2 = self.vision.track_collor(new_state[2], 1)
+        new_state1 = self.vision.get_image(1)   #frontal
+        new_state2 = self.vision.get_image(2)   #lateral
+        new_state3 = self.vision.get_image(3)   #top
+
+        red_centers1 = self.vision.track_collor(new_state3[2], 0)
+        red_centers2 = self.vision.track_collor(new_state2[2], 0)
+        blue_center1 = self.vision.track_collor(new_state3[2], 1)
+        blue_center2 = self.vision.track_collor(new_state2[2], 1)
 
         if (len(blue_center1) > 0) and (len(blue_center2) > 0) and (len(red_centers1) > 0) and (len(red_centers2) > 0):
             red1 = red_centers1[0]
@@ -164,4 +210,4 @@ class Agent(object):
             reward = 0.0
             done = 0
 
-        return new_state, reward, done
+        return new_state1, new_state2, new_state3, reward, done

@@ -1,6 +1,6 @@
 import keras
-from keras.models import Sequential
-from keras.layers import Dense, Flatten, Dropout, Activation
+from keras.models import Sequential, Model
+from keras.layers import Dense, Flatten, Dropout, Activation, concatenate
 from keras.layers.convolutional import Conv2D, MaxPooling2D
 from keras.optimizers import Adam
 from Vision import Vision
@@ -89,7 +89,7 @@ class Agent(object):
         x = Dense(number_of_actions)(x)
 
         model = Model(inputs=[model1.input, model2.input, model3.input], output=x)
-        model.compile(loss = 'loss_type', optimizer = optimizer, metrics = metrics_list)
+        model.compile(loss = loss_type, optimizer = optimizer, metrics = metrics_list)
 
         # model.add(Conv2D(32, kernel_size=(5, 5), activation='relu', input_shape=(input_dimension,input_dimension, 1)))
         # model.add(MaxPooling2D(pool_size=(2, 2)))

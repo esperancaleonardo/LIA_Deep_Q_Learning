@@ -66,11 +66,12 @@ class Learning(object):
 
         for episode in range(self.episodes):
             self.agent.controller.start_sim()
-            sleep(4)
+            sleep(1)
             now = datetime.now()
             print str(now) + " starting ep " + str(episode+1)
             init = time.time()
-
+	
+            state_list = []
             self.agent.instant_reward = 0.0
             state_list.append(self.agent.vision.get_image(1)) #state = (resolution, grayscale, colored RGB)
             state_list.append(self.agent.vision.get_image(2)) #state = (resolution, grayscale, colored RGB)
@@ -80,11 +81,11 @@ class Learning(object):
             for step in tqdm(range(self.max_steps)):
                 steps_done = step
 
-                h1 = np.concatenate((state_list[0][2], state_list[1][2]), axis=1)
-                h2 = np.concatenate((state_list[2][2], black), axis=1)
-                full = np.concatenate((h1, h2), axis=0)
-                cv.imshow("state", full)
-                cv.waitKey(1)
+                #h1 = np.concatenate((state_list[0][2], state_list[1][2]), axis=1)
+                #h2 = np.concatenate((state_list[2][2], black), axis=1)
+                #full = np.concatenate((h1, h2), axis=0)
+                #cv.imshow("state", full)
+                #cv.waitKey(1)
 
                 action_taken = self.agent.act(state_list[0], state_list[1], state_list[2], self.epsilon)
                 next_state1, next_state2, next_state3, reward, done = self.agent.do_step(action_taken) ##extrair imagem aqui dentro

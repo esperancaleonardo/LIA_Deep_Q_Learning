@@ -12,7 +12,7 @@ tf.logging.set_verbosity(tf.logging.ERROR)
 
 def main():
     number_of_actions = 12
-    input_dimension = 299
+    input_dimension = 190
 
     episodes= int(sys.argv[2])
     load = int(sys.argv[1])
@@ -41,7 +41,7 @@ def main():
     dqn.agent.cummulative_reward = float(file.get('cummulative_reward'))
     dqn.run()
 
-    os.chdir("root")
+    os.chdir("..")
 
     file = {'epsilon':dqn.epsilon,
             'cummulative_reward':dqn.agent.cummulative_reward,

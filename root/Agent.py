@@ -1,4 +1,5 @@
 import keras
+import tensorflow as tf
 from keras.models import Sequential, Model
 from keras.layers import Dense, Flatten, Dropout, Activation, concatenate
 from keras.layers.convolutional import Conv2D, MaxPooling2D
@@ -88,8 +89,8 @@ class Agent(object):
         x = Dropout(0.2)(x)
         x = Dense(number_of_actions)(x)
 
-        model = Model(inputs=[model1.input, model2.input, model3.input], output=x)
-        model.compile(loss = loss_type, optimizer = optimizer, metrics = metrics_list)
+        model = Model(inputs=[model1.input, model2.input, model3.input], outputs=x)
+	model.compile(loss = loss_type, optimizer = optimizer, metrics = metrics_list)
 
         # model.add(Conv2D(32, kernel_size=(5, 5), activation='relu', input_shape=(input_dimension,input_dimension, 1)))
         # model.add(MaxPooling2D(pool_size=(2, 2)))
@@ -115,13 +116,14 @@ class Agent(object):
             if np.random.randint(0,10) <= epsilon:
                 return np.random.randint(0,self.number_of_actions)
             else:
+		
                 state1 = np.array(state1)
                 state2 = np.array(state2)
                 state3 = np.array(state3)
                 action_values = self.model.predict(
-                                                   [state1.reshape(1,self.input_dimension,self.input_dimension,1),
-                                                    state2.reshape(1,self.input_dimension,self.input_dimension,1),
-                                                    state3.reshape(1,self.input_dimension,self.input_dimension,1)]
+                                                   [state1[1].reshape(1,self.input_dimension,self.input_dimension,1),
+                                                    state2[1].reshape(1,self.input_dimension,self.input_dimension,1),
+                                                    state3[1].reshape(1,self.input_dimension,self.input_dimension,1)]
                                                   )
                 return np.argmax(action_values[0]) ## check if correct
         else:

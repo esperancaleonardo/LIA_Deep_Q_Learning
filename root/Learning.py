@@ -1,4 +1,5 @@
 import random
+import tensorflow as tf
 from Agent import Agent
 from time import sleep
 import cv2 as cv, numpy as np
@@ -41,18 +42,18 @@ class Learning(object):
             target = reward
             if not done:
                 target = (reward + self.gamma*(np.amax(self.agent.model.predict(
-                                                   [next_state_list[0][1].reshape(1,self.input_dimension,self.input_dimension,1),
-                                                    next_state_list[1][1].reshape(1,self.input_dimension,self.input_dimension,1),
-                                                    next_state_list[2][1].reshape(1,self.input_dimension,self.input_dimension,1)])[0])))
+                                                   [next_state_list[0][1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1),
+                                                    next_state_list[1][1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1),
+                                                    next_state_list[2][1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1)])[0])))
 
             target_f = self.agent.model.predict(
-                                               [state_list[0][1].reshape(1,self.input_dimension,self.input_dimension,1),
-                                                state_list[1][1].reshape(1,self.input_dimension,self.input_dimension,1),
-                                                state_list[2][1].reshape(1,self.input_dimension,self.input_dimension,1)])
+                                               [state_list[0][1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1),
+                                                state_list[1][1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1),
+                                                state_list[2][1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1)])
             target_f[0][action] = target
-            fit = self.agent.model.fit([state_list[0][1].reshape(1,self.input_dimension,self.input_dimension,1),
-                                        state_list[1][1].reshape(1,self.input_dimension,self.input_dimension,1),
-                                        state_list[2][1].reshape(1,self.input_dimension,self.input_dimension,1)],
+            fit = self.agent.model.fit([state_list[0][1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1),
+                                        state_list[1][1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1),
+                                        state_list[2][1].reshape(1,self.agent.input_dimension,self.agent.input_dimension,1)],
                                         target_f, self.epochs, verbose=0)
 
         if fit == None:
@@ -66,7 +67,7 @@ class Learning(object):
 
         for episode in range(self.episodes):
             self.agent.controller.start_sim()
-            sleep(1)
+            sleep(4)
             now = datetime.now()
             print str(now) + " starting ep " + str(episode+1)
             init = time.time()
@@ -84,7 +85,7 @@ class Learning(object):
                 #h1 = np.concatenate((state_list[0][2], state_list[1][2]), axis=1)
                 #h2 = np.concatenate((state_list[2][2], black), axis=1)
                 #full = np.concatenate((h1, h2), axis=0)
-                #cv.imshow("state", full)
+                #cv.imshow("state", state_list[0][2])
                 #cv.waitKey(1)
 
                 action_taken = self.agent.act(state_list[0], state_list[1], state_list[2], self.epsilon)
@@ -103,7 +104,7 @@ class Learning(object):
 
             end = time.time()
             self.agent.controller.stop_sim()
-            sleep(1)
+            sleep(3)
 
             evall = None
             if len(self.agent.memory) > int(self.agent.batch_size):
@@ -146,7 +147,9 @@ class Learning(object):
         now = datetime.now()
 
         os.chdir("logs")
-        os.mkdir(str(now))
-        self.analyzer.plot_raw(self.analyzer.rewards_list, self.analyzer.reward_fig, str(now), "Reward x Episodio", "Reward")
-        self.analyzer.plot_raw(self.analyzer.steps_list, self.analyzer.steps_fig, str(now), "Steps Gastos x Episodio", "Steps")
-        self.analyzer.plot_raw(self.analyzer.mse_values, self.analyzer.mse_fig, str(now), "Mean Squared Error x Episodio", "Valor MSE", normalize=True)
+	dirr = str(now)        
+	os.mkdir(dirr)
+	self.analyzer.plot_media_n(self.analyzer.rewards_list, self.analyzer.reward_fig, dirr, 10, "REWARDxEP", "Reward Media x 10 Episodio", "Reward Media")
+        self.analyzer.plot_raw(self.analyzer.rewards_list, self.analyzer.reward_fig, dirr, "REWARDxEP", "Reward x Episodio", "Reward")
+        self.analyzer.plot_raw(self.analyzer.steps_list, self.analyzer.steps_fig, dirr, "STEPS", "Steps Gastos x Episodio", "Steps")
+        self.analyzer.plot_raw(self.analyzer.mse_values, self.analyzer.mse_fig, dirr, "MSE", "Mean Squared Error x Episodio", "Valor MSE", normalize=True)

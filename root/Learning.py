@@ -8,6 +8,9 @@ from datetime import datetime
 from tqdm import tqdm
 from Results import Results
 import os
+import sys
+
+sys.dont_write_bytecode = True
 
 class Learning(object):
     """ docstring for Learning """
@@ -71,7 +74,7 @@ class Learning(object):
             now = datetime.now()
             print str(now) + " starting ep " + str(episode+1)
             init = time.time()
-	
+
             state_list = []
             self.agent.instant_reward = 0.0
             state_list.append(self.agent.vision.get_image(1)) #state = (resolution, grayscale, colored RGB)
@@ -130,7 +133,7 @@ class Learning(object):
 
             now = datetime.now()
             print (str(now) + " duration " + str(round((end - init)/60.0, 2)) +
-                              " min //  ep " + str(episode+1) +
+                              " min //  ep " + str(episode+1) + "/" + str(self.episodes) +
                               " // reward " + str(round(self.agent.instant_reward, 2)))
 
             self.agent.step_lost_counter = 0
@@ -147,9 +150,16 @@ class Learning(object):
         now = datetime.now()
 
         os.chdir("logs")
-	dirr = str(now)        
-	os.mkdir(dirr)
-	self.analyzer.plot_media_n(self.analyzer.rewards_list, self.analyzer.reward_fig, dirr, 10, "REWARDxEP", "Reward Media x 10 Episodio", "Reward Media")
+        dirr = str(now)
+        os.mkdir(dirr)
+
+        file = open(os.path.join(os.getcwd(), dirr, "data.txt" ), 'w')
+        file.write(str(self.analyzer.rewards_list))
+        file.write(str(self.analyzer.steps_list))
+        file.write(str(self.analyzer.mse_values))
+        file.close()
+
+        self.analyzer.plot_media_n(self.analyzer.rewards_list, self.analyzer.reward_fig, dirr, 10, "REWARDxEP(media)", "Reward Media x 10 Episodio", "Reward Media")
         self.analyzer.plot_raw(self.analyzer.rewards_list, self.analyzer.reward_fig, dirr, "REWARDxEP", "Reward x Episodio", "Reward")
         self.analyzer.plot_raw(self.analyzer.steps_list, self.analyzer.steps_fig, dirr, "STEPS", "Steps Gastos x Episodio", "Steps")
         self.analyzer.plot_raw(self.analyzer.mse_values, self.analyzer.mse_fig, dirr, "MSE", "Mean Squared Error x Episodio", "Valor MSE", normalize=True)

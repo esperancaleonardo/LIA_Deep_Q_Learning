@@ -6,13 +6,18 @@ import sys
 import os
 import tensorflow as tf
 import csv
+
+sys.dont_write_bytecode = True
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 tf.logging.set_verbosity(tf.logging.ERROR)
+gpu_options = tf.GPUOptions(allow_growth=True)
+session = tf.InteractiveSession(config=tf.ConfigProto(gpu_options=gpu_options))
 
 
 def main():
     number_of_actions = 12
-    input_dimension = 190
+    input_dimension = 299
 
     episodes= int(sys.argv[2])
     load = int(sys.argv[1])

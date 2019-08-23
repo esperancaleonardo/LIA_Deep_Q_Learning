@@ -13,6 +13,7 @@ import numpy as np
 from time import sleep
 import math
 import sys
+sys.dont_write_bytecode = True
 
 sys.path.append("..")
 path = os.getcwd()
@@ -24,7 +25,7 @@ class Agent(object):
         self.input_dimension = input_dimension
         self.instant_reward = 0.0
         self.cummulative_reward = 0.0
-        self.memory = deque(maxlen=100000)
+        self.memory = deque(maxlen=10000)
         self.batch_size = int (batch_size)
         self.classes = self.number_of_actions
         self.controller = Controller("UR3", 6)
@@ -56,57 +57,60 @@ class Agent(object):
         model2 = Sequential()
         model3 = Sequential()
 
-        model1.add(Conv2D(32, kernel_size=(5, 5), activation='relu', input_shape=(input_dimension,input_dimension, 1)))
+        model1.add(Conv2D(8, kernel_size=(5, 5), activation='relu', input_shape=(input_dimension,input_dimension, 1)))
         model1.add(MaxPooling2D(pool_size=(2, 2)))
-        model1.add(Conv2D(64, (5, 5), activation='relu'))
+        model1.add(Conv2D(8, (5, 5), activation='relu'))
         model1.add(MaxPooling2D(pool_size=(2, 2)))
-        model1.add(Conv2D(64, (5, 5), activation='relu'))
+        model1.add(Conv2D(8, (5, 5), activation='relu'))
         model1.add(MaxPooling2D(pool_size=(2, 2)))
-        model1.add(Dropout(0.25))
+        model1.add(Dropout(0.5))
         model1.add(Flatten())
         ###################################################################################################
-        model2.add(Conv2D(32, kernel_size=(5, 5), activation='relu', input_shape=(input_dimension,input_dimension, 1)))
+        model2.add(Conv2D(8, kernel_size=(5, 5), activation='relu', input_shape=(input_dimension,input_dimension, 1)))
         model2.add(MaxPooling2D(pool_size=(2, 2)))
-        model2.add(Conv2D(64, (5, 5), activation='relu'))
+        model2.add(Conv2D(8, (5, 5), activation='relu'))
         model2.add(MaxPooling2D(pool_size=(2, 2)))
-        model2.add(Conv2D(64, (5, 5), activation='relu'))
+        model2.add(Conv2D(8, (5, 5), activation='relu'))
         model2.add(MaxPooling2D(pool_size=(2, 2)))
-        model2.add(Dropout(0.25))
+        model2.add(Dropout(0.5))
         model2.add(Flatten())
         ###################################################################################################
-        model3.add(Conv2D(32, kernel_size=(5, 5), activation='relu', input_shape=(input_dimension,input_dimension, 1)))
+        model3.add(Conv2D(8, kernel_size=(5, 5), activation='relu', input_shape=(input_dimension,input_dimension, 1)))
         model3.add(MaxPooling2D(pool_size=(2, 2)))
-        model3.add(Conv2D(64, (5, 5), activation='relu'))
+        model3.add(Conv2D(8, (5, 5), activation='relu'))
         model3.add(MaxPooling2D(pool_size=(2, 2)))
-        model3.add(Conv2D(64, (5, 5), activation='relu'))
+        model3.add(Conv2D(8, (5, 5), activation='relu'))
         model3.add(MaxPooling2D(pool_size=(2, 2)))
-        model3.add(Dropout(0.25))
+        model3.add(Dropout(0.5))
         model3.add(Flatten())
 
-        combined = concatenate([model1.output, model2.output, model3.output])
-        x = Dense(4096)(combined)
+        x = concatenate([model1.output, model2.output, model3.output])
+        x = Dense(4096)(x)
         x = Dense(256, activation='relu')(x)
         x = Dropout(0.2)(x)
         x = Dense(number_of_actions)(x)
 
         model = Model(inputs=[model1.input, model2.input, model3.input], outputs=x)
-	model.compile(loss = loss_type, optimizer = optimizer, metrics = metrics_list)
+        model.compile(loss = loss_type, optimizer = optimizer, metrics = metrics_list)
 
+        # model = Sequential()
         # model.add(Conv2D(32, kernel_size=(5, 5), activation='relu', input_shape=(input_dimension,input_dimension, 1)))
         # model.add(MaxPooling2D(pool_size=(2, 2)))
         # model.add(Conv2D(64, (5, 5), activation='relu'))
         # model.add(MaxPooling2D(pool_size=(2, 2)))
-        # model.add(Conv2D(64, (5, 5), activation='relu'))
-        # model.add(MaxPooling2D(pool_size=(2, 2)))
+        # # model.add(Conv2D(64, (5, 5), activation='relu'))
+        # # model.add(MaxPooling2D(pool_size=(2, 2)))
         # model.add(Dropout(0.25))
         # model.add(Flatten())
-        # model.add(Dense(4096))
+        # # model.add(Dense(4096))
         # model.add(Dense(256, activation='relu'))
         # model.add(Dropout(0.2))
         # model.add(Dense(number_of_actions))
         # model.compile(loss = loss_type, optimizer = optimizer, metrics = metrics_list)
-        # #model.summary()
 
+
+
+        #model.summary()
         return model
 
     """ decides to act randomly or not, aconding to epsilon value """
@@ -116,7 +120,7 @@ class Agent(object):
             if np.random.randint(0,10) <= epsilon:
                 return np.random.randint(0,self.number_of_actions)
             else:
-		
+
                 state1 = np.array(state1)
                 state2 = np.array(state2)
                 state3 = np.array(state3)

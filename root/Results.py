@@ -1,7 +1,10 @@
 import matplotlib.pyplot as plt
 import math, numpy as np
 import random
-import os
+import os, sys
+
+sys.dont_write_bytecode = True
+
 
 base_dir = os.getcwd()
 

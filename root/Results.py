@@ -1,7 +1,10 @@
 import matplotlib.pyplot as plt
 import math, numpy as np
 import random
-import os
+import os, sys
+
+sys.dont_write_bytecode = True
+
 
 base_dir = os.getcwd()
 
@@ -37,9 +40,9 @@ class Results(object):
 
       return data_aux
 
-    def plot_media_n(self, data, figure, dir, media, title, ylabel, normalize=False):
+    def plot_media_n(self, data, figure, dir, media, fname, title, ylabel, normalize=False):
 
-      data_aux = media_calc(data, media)
+      data_aux = self.media_calc(data, media)
 
       if normalize:
           data = self.normalize_data(data)
@@ -50,10 +53,10 @@ class Results(object):
       plt.xlabel('Episodes')
       plt.ylabel(ylabel)
       plt.plot(data_aux, 'r')
-      plt.savefig(os.path.join(base_dir, dir, title, ".png"))
+      plt.savefig(os.path.join(base_dir, "logs", dir, fname+".png"))
 
 
-    def plot_raw(self, data, figure, dir, title, ylabel, normalize=False):
+    def plot_raw(self, data, figure, dir, fname, title, ylabel, normalize=False):
 
       if normalize:
           data = self.normalize_data(data)
@@ -64,7 +67,7 @@ class Results(object):
       plt.xlabel('Episodes')
       plt.ylabel(ylabel)
       plt.plot(data, 'r')
-      plt.savefig(os.path.join(base_dir, "logs", dir, title+".png"))
+      plt.savefig(os.path.join(base_dir, "logs", dir, fname+".png"))
 
 
     def normalize_data(self, data):

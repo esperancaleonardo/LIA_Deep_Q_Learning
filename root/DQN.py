@@ -6,8 +6,13 @@ import sys
 import os
 import tensorflow as tf
 import csv
+
+sys.dont_write_bytecode = True
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 tf.logging.set_verbosity(tf.logging.ERROR)
+gpu_options = tf.GPUOptions(allow_growth=True)
+session = tf.InteractiveSession(config=tf.ConfigProto(gpu_options=gpu_options))
 
 
 def main():
@@ -41,7 +46,7 @@ def main():
     dqn.agent.cummulative_reward = float(file.get('cummulative_reward'))
     dqn.run()
 
-    os.chdir("root")
+    os.chdir("..")
 
     file = {'epsilon':dqn.epsilon,
             'cummulative_reward':dqn.agent.cummulative_reward,

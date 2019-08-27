@@ -1,6 +1,7 @@
 import keras
-from keras.models import Sequential
-from keras.layers import Dense, Flatten, Dropout, Activation
+import tensorflow as tf
+from keras.models import Sequential, Model
+from keras.layers import Dense, Flatten, Dropout, Activation, concatenate
 from keras.layers.convolutional import Conv2D, MaxPooling2D
 from keras.optimizers import Adam
 from Vision import Vision
@@ -13,17 +14,19 @@ from time import sleep
 import math
 import sys
 
+sys.dont_write_bytecode = True
+
 sys.path.append("..")
 path = os.getcwd()
 
 class Agent(object):
     """ docstring for Agent """
-    def __init__(self, number_of_actions, input_dimension, batch_size, alpha , load):
+    def __init__(self, number_of_actions, input_dimension, batch_size, alpha , load, file_name):
         self.number_of_actions = number_of_actions
         self.input_dimension = input_dimension
         self.instant_reward = 0.0
         self.cummulative_reward = 0.0
-        self.memory = deque(maxlen=100000)
+        self.memory = deque(maxlen=10000)
         self.batch_size = int (batch_size)
         self.classes = self.number_of_actions
         self.controller = Controller("UR3", 6)
@@ -31,7 +34,7 @@ class Agent(object):
         self.vision = Vision('Vision_frontal','Vision_lateral','Vision_top',self.controller.id_number)
         self.model = self.create_model(input_dimension, number_of_actions, 'mean_squared_error', Adam(lr=alpha),  ['accuracy', 'mean_squared_error'])
         if load == 1:   #load previous weights if set to 1
-            self.model.load_weights('model_weights.h5')
+            self.model.load_weights(file_name)
             now = datetime.now()
             print str(now) + " model weights load done!"
         self.handlers = self.manage_handlers()
@@ -51,34 +54,82 @@ class Agent(object):
 
     """ creates the DQN model with a specified input dimension and a number of actions for the output layers """
     def create_model(self, input_dimension, number_of_actions, loss_type, optimizer, metrics_list):
-        model = Sequential()
+        model1 = Sequential()
+        model2 = Sequential()
+        model3 = Sequential()
 
-        model.add(Conv2D(32, kernel_size=(5, 5), activation='relu', input_shape=(input_dimension,input_dimension, 1)))
-        model.add(MaxPooling2D(pool_size=(2, 2)))
-        model.add(Conv2D(64, (5, 5), activation='relu'))
-        model.add(MaxPooling2D(pool_size=(2, 2)))
-        model.add(Conv2D(64, (5, 5), activation='relu'))
-        model.add(MaxPooling2D(pool_size=(2, 2)))
-        model.add(Dropout(0.25))
-        model.add(Flatten())
-        model.add(Dense(4096))
-        model.add(Dense(256, activation='relu'))
-        model.add(Dropout(0.2))
-        model.add(Dense(number_of_actions))
+        model1.add(Conv2D(8, kernel_size=(5, 5), activation='relu', input_shape=(input_dimension,input_dimension, 1)))
+        model1.add(MaxPooling2D(pool_size=(2, 2)))
+        model1.add(Conv2D(8, (5, 5), activation='relu'))
+        model1.add(MaxPooling2D(pool_size=(2, 2)))
+        model1.add(Conv2D(8, (5, 5), activation='relu'))
+        model1.add(MaxPooling2D(pool_size=(2, 2)))
+        model1.add(Dropout(0.5))
+        model1.add(Flatten())
+        ###################################################################################################
+        model2.add(Conv2D(8, kernel_size=(5, 5), activation='relu', input_shape=(input_dimension,input_dimension, 1)))
+        model2.add(MaxPooling2D(pool_size=(2, 2)))
+        model2.add(Conv2D(8, (5, 5), activation='relu'))
+        model2.add(MaxPooling2D(pool_size=(2, 2)))
+        model2.add(Conv2D(8, (5, 5), activation='relu'))
+        model2.add(MaxPooling2D(pool_size=(2, 2)))
+        model2.add(Dropout(0.5))
+        model2.add(Flatten())
+        ###################################################################################################
+        model3.add(Conv2D(8, kernel_size=(5, 5), activation='relu', input_shape=(input_dimension,input_dimension, 1)))
+        model3.add(MaxPooling2D(pool_size=(2, 2)))
+        model3.add(Conv2D(8, (5, 5), activation='relu'))
+        model3.add(MaxPooling2D(pool_size=(2, 2)))
+        model3.add(Conv2D(8, (5, 5), activation='relu'))
+        model3.add(MaxPooling2D(pool_size=(2, 2)))
+        model3.add(Dropout(0.5))
+        model3.add(Flatten())
+
+        x = concatenate([model1.output, model2.output, model3.output])
+        x = Dense(4096)(x)
+        x = Dense(256, activation='relu')(x)
+        x = Dropout(0.2)(x)
+        x = Dense(number_of_actions)(x)
+
+        model = Model(inputs=[model1.input, model2.input, model3.input], outputs=x)
         model.compile(loss = loss_type, optimizer = optimizer, metrics = metrics_list)
-        #model.summary()
 
+        # model = Sequential()
+        # model.add(Conv2D(32, kernel_size=(5, 5), activation='relu', input_shape=(input_dimension,input_dimension, 1)))
+        # model.add(MaxPooling2D(pool_size=(2, 2)))
+        # model.add(Conv2D(64, (5, 5), activation='relu'))
+        # model.add(MaxPooling2D(pool_size=(2, 2)))
+        # # model.add(Conv2D(64, (5, 5), activation='relu'))
+        # # model.add(MaxPooling2D(pool_size=(2, 2)))
+        # model.add(Dropout(0.25))
+        # model.add(Flatten())
+        # # model.add(Dense(4096))
+        # model.add(Dense(256, activation='relu'))
+        # model.add(Dropout(0.2))
+        # model.add(Dense(number_of_actions))
+        # model.compile(loss = loss_type, optimizer = optimizer, metrics = metrics_list)
+
+
+
+        #model.summary()
         return model
 
     """ decides to act randomly or not, aconding to epsilon value """
-    def act(self, state, epsilon):
+    def act(self, state1, state2, state3, epsilon):
 
         if self.step_lost_counter < 30:
             if np.random.randint(0,10) <= epsilon:
                 return np.random.randint(0,self.number_of_actions)
             else:
-                state = np.array(state)
-                action_values = self.model.predict(state.reshape(1,self.input_dimension,self.input_dimension,1))
+
+                state1 = np.array(state1)
+                state2 = np.array(state2)
+                state3 = np.array(state3)
+                action_values = self.model.predict(
+                                                   [state1[1].reshape(1,self.input_dimension,self.input_dimension,1),
+                                                    state2[1].reshape(1,self.input_dimension,self.input_dimension,1),
+                                                    state3[1].reshape(1,self.input_dimension,self.input_dimension,1)]
+                                                  )
                 return np.argmax(action_values[0]) ## check if correct
         else:
             self.step_lost_counter = 0
@@ -124,19 +175,21 @@ class Agent(object):
         #     self.controller.gripper_close()
 
         sleep(0.3)
-        new_state, reward,  done = self.get_reward()
+        new_state1, new_state2, new_state3, reward,  done = self.get_reward()
 
-        return new_state, reward, done
+        return new_state1, new_state2, new_state3, reward, done
 
     """ etimates a reward value using computer vision for 3d distance between two objects """
     def get_reward(self):
-        new_state = self.vision.get_image(2)
-        aux_state = self.vision.get_image(3)
 
-        red_centers1 = self.vision.track_collor(aux_state[2], 0)
-        red_centers2 = self.vision.track_collor(new_state[2], 0)
-        blue_center1 = self.vision.track_collor(aux_state[2], 1)
-        blue_center2 = self.vision.track_collor(new_state[2], 1)
+        new_state1 = self.vision.get_image(1)   #frontal
+        new_state2 = self.vision.get_image(2)   #lateral
+        new_state3 = self.vision.get_image(3)   #top
+
+        red_centers1 = self.vision.track_collor(new_state3[2], 0)
+        red_centers2 = self.vision.track_collor(new_state2[2], 0)
+        blue_center1 = self.vision.track_collor(new_state3[2], 1)
+        blue_center2 = self.vision.track_collor(new_state2[2], 1)
 
         if (len(blue_center1) > 0) and (len(blue_center2) > 0) and (len(red_centers1) > 0) and (len(red_centers2) > 0):
             red1 = red_centers1[0]
@@ -164,4 +217,4 @@ class Agent(object):
             reward = 0.0
             done = 0
 
-        return new_state, reward, done
+        return new_state1, new_state2, new_state3, reward, done

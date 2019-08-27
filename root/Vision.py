@@ -2,7 +2,10 @@ from source import vrep
 from time import sleep
 from PIL import Image as I
 import array, cv2 as cv, numpy as np
-import imutils
+import imutils, sys
+
+sys.dont_write_bytecode = True
+
 
 class Vision(object):
     """ docstring for Vision """

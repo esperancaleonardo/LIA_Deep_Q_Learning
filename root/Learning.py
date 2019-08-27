@@ -28,7 +28,7 @@ class Learning(object):
         self.epsilon_decay = epsilon_decay
         self.episodes_decay = episodes_decay
         self.epochs = epochs
-        self.agent = Agent(number_of_actions, input_dimension, batch_size, self.alpha, load)
+        self.agent = Agent(number_of_actions, input_dimension, batch_size, self.alpha, load, 'model_weights.h5')
         self.analyzer = Results()
 
     """ append a new action in the memory, in form of a tuple, for further replay with a batch """

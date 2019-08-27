@@ -21,7 +21,7 @@ path = os.getcwd()
 
 class Agent(object):
     """ docstring for Agent """
-    def __init__(self, number_of_actions, input_dimension, batch_size, alpha , load):
+    def __init__(self, number_of_actions, input_dimension, batch_size, alpha , load, file_name):
         self.number_of_actions = number_of_actions
         self.input_dimension = input_dimension
         self.instant_reward = 0.0
@@ -34,7 +34,7 @@ class Agent(object):
         self.vision = Vision('Vision_frontal','Vision_lateral','Vision_top',self.controller.id_number)
         self.model = self.create_model(input_dimension, number_of_actions, 'mean_squared_error', Adam(lr=alpha),  ['accuracy', 'mean_squared_error'])
         if load == 1:   #load previous weights if set to 1
-            self.model.load_weights('model_weights.h5')
+            self.model.load_weights(file_name)
             now = datetime.now()
             print str(now) + " model weights load done!"
         self.handlers = self.manage_handlers()

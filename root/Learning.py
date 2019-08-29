@@ -66,10 +66,7 @@ class Learning(object):
 
     """ main loop for the learning itself """
     def run(self):
-	print("starting everything")
-        black = np.zeros((299,299,3), np.uint8)
-
-
+	    print("starting everything")
         for episode in range(self.episodes):
             self.agent.controller.start_sim()
             sleep(4)

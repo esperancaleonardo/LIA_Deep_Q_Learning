@@ -30,6 +30,8 @@ class Vision(object):
         else:
             err, resolution, image = vrep.simxGetVisionSensorImage(self.client_id, self.sensor_3, 0, vrep.simx_opmode_buffer)
 
+        print resolution
+
         image = array.array('b', image)
         image = I.frombuffer("RGB", (resolution[0],resolution[1]), image, "raw", "RGB", 0, 1)
         image = np.asarray(image)
@@ -40,7 +42,7 @@ class Vision(object):
         if upscale:
             image = cv.resize(image, (512,512))
 
-        
+
         return resolution, gray, cv.cvtColor(image, cv.COLOR_BGR2RGB)
 
 

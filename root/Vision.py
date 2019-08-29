@@ -40,6 +40,7 @@ class Vision(object):
         if upscale:
             image = cv.resize(image, (512,512))
 
+        
         return resolution, gray, cv.cvtColor(image, cv.COLOR_BGR2RGB)
 
 

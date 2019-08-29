@@ -66,7 +66,7 @@ class Learning(object):
 
     """ main loop for the learning itself """
     def run(self):
-	    print("starting everything")
+        print("starting everything")
         for episode in range(self.episodes):
             self.agent.controller.start_sim()
             sleep(4)

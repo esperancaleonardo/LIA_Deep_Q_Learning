@@ -31,7 +31,7 @@ class Agent(object):
         self.classes = self.number_of_actions
         self.controller = Controller("UR3", 6)
         self.controller.connect(19997)
-        self.vision = Vision('Vision_frontal','Vision_lateral','Vision_top',self.controller.id_number)
+        self.vision = Vision("Vision_frontal","Vision_lateral","Vision_top",self.controller.id_number)
         self.model = self.create_model(input_dimension, number_of_actions, 'mean_squared_error', Adam(lr=alpha),  ['accuracy', 'mean_squared_error'])
         if load == 1:   #load previous weights if set to 1
             self.model.load_weights(file_name)
@@ -174,7 +174,7 @@ class Agent(object):
         # else: #action == 13:
         #     self.controller.gripper_close()
 
-        
+
         new_state1, new_state2, new_state3, reward,  done = self.get_reward()
 
         return new_state1, new_state2, new_state3, reward, done

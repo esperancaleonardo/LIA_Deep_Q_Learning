@@ -207,7 +207,7 @@ class Agent(object):
 
             if distance >= 11.0:
                 done = 0
-                reward = -20*distance if distance >= 50.0 else base - 2*distance
+                reward = -1*abs(distance) if distance >= 50.0 else base - distance
             else:
                 self.done_counter +=1
                 done = 1

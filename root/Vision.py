@@ -1,10 +1,10 @@
+import sys
+sys.dont_write_bytecode = True
 from source import vrep
 from time import sleep
 from PIL import Image as I
 import array, cv2 as cv, numpy as np
-import imutils, sys
-
-sys.dont_write_bytecode = True
+import imutils
 
 
 class Vision(object):
@@ -24,11 +24,11 @@ class Vision(object):
     """ retorna a resolucao e a imagem obtida do sensor sensor_number do vrep como um array """
     def get_image(self, sensor_number, grayscale = True, upscale = False):
         if sensor_number == 1:
-            err, resolution, image = vrep.simxGetVisionSensorImage(self.client_id, self.sensor_1, 0, vrep.simx_opmode_buffer)
+            err, resolution, image = vrep.simxGetVisionSensorImage(self.client_id, self.sensor_1, 0, vrep.simx_opmode_streaming)
         elif sensor_number == 2:
-            err, resolution, image = vrep.simxGetVisionSensorImage(self.client_id, self.sensor_2, 0, vrep.simx_opmode_buffer)
+            err, resolution, image = vrep.simxGetVisionSensorImage(self.client_id, self.sensor_2, 0, vrep.simx_opmode_streaming)
         else:
-            err, resolution, image = vrep.simxGetVisionSensorImage(self.client_id, self.sensor_3, 0, vrep.simx_opmode_buffer)
+            err, resolution, image = vrep.simxGetVisionSensorImage(self.client_id, self.sensor_3, 0, vrep.simx_opmode_streaming)
 
         #print resolution
 

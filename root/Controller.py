@@ -65,7 +65,7 @@ class Controller(object):
     """ move uma junta a uma certa angulacao em tempo de simulacao """
     def set_joint_position(self, joint_handler, joint_degree):
         rad_conversion = joint_degree*(math.pi/180.0)
-        code = vrep.simxSetJointTargetPosition(self.id_number, joint_handler, rad_conversion, vrep.simx_opmode_blocking)
+        code = vrep.simxSetJointTargetPosition(self.id_number, joint_handler, rad_conversion, vrep.simx_opmode_streaming)
 
     #OK
     """ fecha o atuador da garra """

@@ -1,22 +1,26 @@
+import sys
+sys.path.append("..")
+
 from Vision import Vision
 from Controller import Controller
 from Agent import Agent
 from tqdm import tqdm
 import cv2 as cv, numpy as np
-from time import sleep
+from time import sleep, time
 import csv
 
-number_of_samples = 2000000
+number_of_samples = 10000
 Agent = Agent(number_of_actions=12, input_dimension=299, batch_size=0, alpha=0, load=0, file_name = '')
 #Agent.controller.connect(port=19996)
-data_file = open('data_values.csv','w')
+data_file = open('/media/leonardo/Seagate Expansion Driver/DTASET_IC/data_values.csv','w')
 writer = csv.writer(data_file, delimiter=',')
 
 Agent.controller.start_sim()
 
+
+print("Generating " + str(number_of_samples) + " samples for training")
+
 for sample in tqdm(range(number_of_samples)):
-
-
     initial_pos = [np.random.randint(0,360) for i in range(6)]
     Agent.controller.set_positions(Agent.handlers, initial_pos)
 
@@ -32,10 +36,10 @@ for sample in tqdm(range(number_of_samples)):
     new_states = [new_state1, new_state2, new_state3]
 
     writer.writerow([action, reward, done])
-    #print("SAMPLE: "+str(sample+1), " Action: "+str(action), " Rw: "+str(reward), " Done: "+str(done))
 
     for image in range(len(new_states)):
-        cv.imwrite("dataset/init/"+str(sample+1)+"_"+str(image+1)+".png", initial_states[image][1])
-        cv.imwrite("dataset/end/"+str(sample+1)+"_"+str(image+1)+".png", new_states[image][1])
+        cv.imwrite("/media/leonardo/Seagate Expansion Driver/DTASET_IC/init/"+str(sample+1)+"_"+str(image+1)+".png", initial_states[image][1])
+        cv.imwrite("/media/leonardo/Seagate Expansion Driver/DTASET_IC/end/"+str(sample+1)+"_"+str(image+1)+".png", new_states[image][1])
+
 
 data_file.close()

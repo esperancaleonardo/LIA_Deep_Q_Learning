@@ -1,3 +1,5 @@
+import sys
+sys.dont_write_bytecode = True
 import keras
 import tensorflow as tf
 from keras.models import Sequential, Model
@@ -12,9 +14,6 @@ import cv2 as cv, os
 import numpy as np
 from time import sleep
 import math
-import sys
-
-sys.dont_write_bytecode = True
 
 sys.path.append("..")
 path = os.getcwd()
@@ -36,7 +35,7 @@ class Agent(object):
         if load == 1:   #load previous weights if set to 1
             self.model.load_weights(file_name)
             now = datetime.now()
-            print str(now) + " model weights load done!"
+            print(str(now) + " model weights load done!")
         self.handlers = self.manage_handlers()
         self.counter = 0
         self.step_degrees = 45.0
@@ -168,13 +167,14 @@ class Agent(object):
             self.controller.set_joint_position(self.handlers[5], self.controller.get_joint_position(self.handlers[5]) + self.step_degrees)
         else: #if action == 11:
             self.controller.set_joint_position(self.handlers[5], self.controller.get_joint_position(self.handlers[5]) - self.step_degrees)
+
         # # gripper
         # elif action == 12:
         #     self.controller.gripper_open()
         # else: #action == 13:
         #     self.controller.gripper_close()
 
-
+        sleep(0.5)
         new_state1, new_state2, new_state3, reward,  done = self.get_reward()
 
         return new_state1, new_state2, new_state3, reward, done

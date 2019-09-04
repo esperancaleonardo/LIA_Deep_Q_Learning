@@ -27,16 +27,16 @@ for i in range(100):
     for i in tqdm(range(len(rows))):
         action, reward, done = rows[i][0], rows[i][1], rows[i][2]
         initial_states = []
-        initial_states.append(cv.cvtColor(cv.imread("dataset/init/"+str(sample)+"_"+str(1)+".png"), cv.COLOR_BGR2GRAY))
-        initial_states.append(cv.cvtColor(cv.imread("dataset/init/"+str(sample)+"_"+str(2)+".png"), cv.COLOR_BGR2GRAY))
-        initial_states.append(cv.cvtColor(cv.imread("dataset/init/"+str(sample)+"_"+str(3)+".png"), cv.COLOR_BGR2GRAY))
+        initial_states.append(cv.cvtColor(cv.imread("dataset/init/"+str(sample)+"_"+str(1)+".png"), cv.IMREAD_GRAYSCALE))
+        initial_states.append(cv.cvtColor(cv.imread("dataset/init/"+str(sample)+"_"+str(2)+".png"), cv.IMREAD_GRAYSCALE))
+        initial_states.append(cv.cvtColor(cv.imread("dataset/init/"+str(sample)+"_"+str(3)+".png"), cv.IMREAD_GRAYSCALE))
 
         #print(initial_states[0])
 
         final_states = []
-        final_states.append(cv.cvtColor(cv.imread("dataset/end/"+str(sample)+"_"+str(1)+".png"), cv.COLOR_BGR2GRAY))
-        final_states.append(cv.cvtColor(cv.imread("dataset/end/"+str(sample)+"_"+str(2)+".png"), cv.COLOR_BGR2GRAY))
-        final_states.append(cv.cvtColor(cv.imread("dataset/end/"+str(sample)+"_"+str(3)+".png"), cv.COLOR_BGR2GRAY))
+        final_states.append(cv.cvtColor(cv.imread("dataset/end/"+str(sample)+"_"+str(1)+".png"), cv.IMREAD_GRAYSCALE))
+        final_states.append(cv.cvtColor(cv.imread("dataset/end/"+str(sample)+"_"+str(2)+".png"), cv.IMREAD_GRAYSCALE))
+        final_states.append(cv.cvtColor(cv.imread("dataset/end/"+str(sample)+"_"+str(3)+".png"), cv.IMREAD_GRAYSCALE))
 
         sample += 1
 

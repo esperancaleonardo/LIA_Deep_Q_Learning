@@ -1,5 +1,5 @@
 epochs,1
-epsilon_decay,0.99
+epsilon_decay,0.95
 gamma,0.99
 alpha,0.06
 cummulative_reward,0.0

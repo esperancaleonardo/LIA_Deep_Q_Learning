@@ -1,4 +1,4 @@
-import sys
+import sys, os, tensorflow as tf
 sys.path.append("..")
 
 from Vision import Vision
@@ -8,6 +8,9 @@ from tqdm import tqdm
 import cv2 as cv, numpy as np
 from time import sleep, time
 import csv
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+tf.logging.set_verbosity(tf.logging.ERROR)
 
 number_of_samples = 10000
 Agent = Agent(number_of_actions=12, input_dimension=299, batch_size=0, alpha=0, load=0, file_name = '')
@@ -24,7 +27,7 @@ for sample in tqdm(range(number_of_samples)):
     initial_pos = [np.random.randint(0,360) for i in range(6)]
     Agent.controller.set_positions(Agent.handlers, initial_pos)
 
-    sleep(0.5)
+    sleep(0.08)
 
     initial_states = []
     initial_states.append(Agent.vision.get_image(sensor_number=1))

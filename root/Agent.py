@@ -174,7 +174,7 @@ class Agent(object):
         # else: #action == 13:
         #     self.controller.gripper_close()
 
-        sleep(0.5)
+        sleep(1)
         new_state1, new_state2, new_state3, reward,  done = self.get_reward()
 
         return new_state1, new_state2, new_state3, reward, done

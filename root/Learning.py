@@ -100,7 +100,7 @@ class Learning(object):
 
             end = time.time()
             self.agent.controller.stop_sim()
-            sleep(1)
+            sleep(0.08)
 
             evall = None
             if len(self.agent.memory) > int(self.agent.batch_size):

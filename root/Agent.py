@@ -25,7 +25,7 @@ class Agent(object):
         self.input_dimension = input_dimension
         self.instant_reward = 0.0
         self.cummulative_reward = 0.0
-        self.memory = deque(maxlen=10000)
+        self.memory = deque(maxlen=30000)
         self.batch_size = int (batch_size)
         self.classes = self.number_of_actions
         self.controller = Controller("UR3", 6)

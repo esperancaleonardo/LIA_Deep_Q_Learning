@@ -41,7 +41,7 @@ class Learning(object):
         mini_batch = random.sample(self.agent.memory, int(self.agent.batch_size))
 
         fit = None
-        for state_list, action, reward, next_state_list, done in tqdm(mini_batch):
+        for state_list, action, reward, next_state_list, done in mini_batch:
             target = reward
             if not done:
                 target = (reward + self.gamma*(np.amax(self.agent.model.predict(
@@ -69,9 +69,9 @@ class Learning(object):
         print("starting everything")
         for episode in range(self.episodes):
             self.agent.controller.start_sim()
-            sleep(3)
+            sleep(0.5)
             now = datetime.now()
-            print str(now) + " starting ep " + str(episode+1)
+            #print(str(now) + " starting ep " + str(episode+1) + "\n")
             init = time.time()
 
             state_list = []
@@ -81,7 +81,7 @@ class Learning(object):
             state_list.append(self.agent.vision.get_image(3)) #state = (resolution, grayscale, colored RGB)
 
             steps_done = None
-            for step in tqdm(range(self.max_steps)):
+            for step in range(self.max_steps):
                 steps_done = step
 
                 action_taken = self.agent.act(state_list[0], state_list[1], state_list[2], self.epsilon)
@@ -100,8 +100,7 @@ class Learning(object):
 
             end = time.time()
             self.agent.controller.stop_sim()
-            sleep(0.08)
-
+            sleep(0.5)
             evall = None
             if len(self.agent.memory) > int(self.agent.batch_size):
                 rep_init = time.time()
@@ -109,7 +108,7 @@ class Learning(object):
                 rep_end = time.time()
                 now = datetime.now()
                 self.analyzer.mse_values.append(evall.history['mean_squared_error'])
-                print str(now) + " mse value: ", str(round(evall.history['mean_squared_error'][0], 2)), " replay ", str(round((rep_end - rep_init)/60.0,2)), "minutes"
+                print (str(now) + " mse value: " + str(round(evall.history['mean_squared_error'][0], 2)) + " loss: " + str(round(evall.history['loss'][0], 4)) + " replay " + str(round((rep_end - rep_init)/60.0,2)) + " minutes")
 
             self.analyzer.rewards_list.append(self.agent.instant_reward)
             self.agent.cummulative_reward += self.agent.instant_reward
@@ -127,6 +126,7 @@ class Learning(object):
             now = datetime.now()
             print (str(now) + " duration " + str(round((end - init)/60.0, 2)) +
                               " min //  ep " + str(episode+1) + "/" + str(self.episodes) +
+                              " // steps " + str(step) +
                               " // reward " + str(round(self.agent.instant_reward, 2)))
 
             self.agent.step_lost_counter = 0

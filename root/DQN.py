@@ -17,7 +17,7 @@ session = tf.InteractiveSession(config=tf.ConfigProto(gpu_options=gpu_options))
 
 def main():
     number_of_actions = 12
-    input_dimension = 299
+    input_dimension = 90
 
     episodes= int(sys.argv[2])
     load = int(sys.argv[1])

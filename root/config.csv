@@ -1,9 +1,9 @@
-epochs,1
+epochs,5
 epsilon_decay,0.95
 gamma,0.99
 alpha,0.06
-cummulative_reward,0.0
-epsilon,10.0
-max_steps,300
-batch_size,2500
-episodes_decay,500
+cummulative_reward,-12366456.941525009
+epsilon,5.97078388160156
+max_steps,500
+batch_size,4000
+episodes_decay,200

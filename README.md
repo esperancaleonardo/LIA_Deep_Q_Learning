@@ -1,4 +1,10 @@
 # LIA-IC - Deep Q-Learning
+
+#### CHECK OUT MY NEWEST WIP OF DEEP Q-LEARNING, HARDER, BETTER, FASTER, STRONGER!!
+
+[dqn_pyrep_lia implementation](https://github.com/esperancaleonardo/dqn_pyrep_lia)
+
+
 IC Scientific Research Project Deep Q-Learning applied to robotics files and implementation for simulation using Coppelia Robotics V-REP simulator.
 
 My job here is to create a full Deep Reinforcement Learning environment from scratch, including the world it will be executed and all codes to manipulate, act and control the RL agent in this world, doing grasping tasks.
@@ -17,4 +23,3 @@ Module implementation:
 
 [X] Learning: For learning control, that will use all modules
 
-![alt text](https://raw.githubusercontent.com/esperancaleonardo/LIA_Deep_Q_Learning/master/root/log/plots/blackhole/acumulada.png)
